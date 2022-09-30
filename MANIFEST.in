@@ -1,0 +1,9 @@
+include LICENSE
+include README.rst
+recursive-include topobank_contact/static *
+recursive-include topobank_contact/templates *
+# recursive-include docs *
+global-exclude __pycache__
+global-exclude *.py[co]
+
+
