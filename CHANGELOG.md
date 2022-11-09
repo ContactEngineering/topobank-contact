@@ -4,6 +4,8 @@
 
 - ENH: Made "Tasks" button more promiment in analyses list,
   as for analysis functions using standard plots
+- MAINT: Changes because of bokeh 3.0.1, BokehJSONEncoder
+  is no more available
 
 ## 0.92.0 (2022-10-14)
 

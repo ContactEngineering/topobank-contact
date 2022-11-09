@@ -1,8 +1,6 @@
 import io
 import json
 
-from bokeh.core.json_encoder import BokehJSONEncoder
-
 from django.core.files import File
 from django.conf import settings
 
@@ -20,6 +18,7 @@ from ContactMechanics.Factory import make_system, make_plastic_system
 from topobank.analysis.functions import IncompatibleTopographyException
 from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
+from topobank.utils import NumpyEncoder
 
 ART_CONTACT_MECHANICS = "contact mechanics"
 
@@ -415,7 +414,7 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         # Write to storage
         #
         default_storage_replace(f'{storage_path}/json/distributions.json',
-                                io.BytesIO(json.dumps(data_dict, cls=BokehJSONEncoder).encode('utf-8')))
+                                io.BytesIO(json.dumps(data_dict, cls=NumpyEncoder).encode('utf-8')))
 
         #
         # Make Deep Zoom Images of pressure, contacting points, gap and displacement
