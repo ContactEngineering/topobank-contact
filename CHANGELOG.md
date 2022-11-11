@@ -1,6 +1,6 @@
 # Changelog for plugin *topobank-contact*
 
-## 0.92.1 (not released yet)
+## 0.92.1 (2022-11-11)
 
 - ENH: Made "Tasks" button more promiment in analyses list,
   as for analysis functions using standard plots
