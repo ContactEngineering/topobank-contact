@@ -22,7 +22,7 @@ class ContactPluginConfig(PluginConfig):
 
         """
         logo = "topobank_contact/static/images/ce_logo.svg"
-        compatibility = "topobank>=0.92.0"
+        # compatibility = "topobank>=0.92.0"
 
     def ready(self):
         # make sure the functions are registered now
