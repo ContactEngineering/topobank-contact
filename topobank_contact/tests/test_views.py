@@ -22,7 +22,7 @@ def test_resolve_card_view(rf, example_contact_analysis, template_flavor):
                        template_flavor=template_flavor,
                        subjects_ids_json=subjects_ids_json
                    ), HTTP_X_REQUESTED_WITH='XMLHttpRequest')  # we need an AJAX request
-    request.user = example_contact_analysis.related_surface.creator
+    request.user = example_contact_analysis.related_surfaces()[0].creator
     request.session = {}
 
     reg = AnalysisRegistry()
