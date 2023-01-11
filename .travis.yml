@@ -20,8 +20,8 @@ install:
   - pushd /tmp
   - git clone https://github.com/ContactEngineering/TopoBank.git
   - cd TopoBank
-  - git checkout 22_analysis_plugins
-  - pip install -q -r requirements/local.txt --no-binary numpy
+  - git checkout develop
+  - pip install -r requirements/local.txt --no-binary numpy
   - pip install -e .[dev]
   - USE_DOCKER=no python manage.py collectstatic
   - popd

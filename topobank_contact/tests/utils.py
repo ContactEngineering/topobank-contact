@@ -37,7 +37,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin):
     surface = SurfaceFactory(creator=user_with_plugin)
     topo = Topography2DFactory(surface=surface)
 
-    # now the following anaylsis should be linked to a user who is allowed to use this plugin
+    # now the following analysis should be linked to a user who is allowed to use this plugin
     analysis = TopographyAnalysisFactory(function=func, result=result, subject=topo)
 
     # create files in storage for zipping
