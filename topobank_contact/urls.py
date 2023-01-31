@@ -1,8 +1,7 @@
-from django.urls import path, re_path
-from django.contrib.auth.decorators import login_required
+# App name determines the internal name space, e.g. example can be references
+# as 'contact:example'
+app_name = 'contact'
 
-
-app_name = "contact"
 urlpatterns = [
     # Define extra urls here
 ]
