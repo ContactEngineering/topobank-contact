@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 0.92.2 (not yet released)
+
+- MAINT: Version discovery from VCS
+
 ## 0.92.1 (2022-11-11)
 
 - ENH: Made "Tasks" button more prominent in analyses list,
