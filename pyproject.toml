@@ -5,6 +5,7 @@ build-backend = 'setuptools.build_meta:__legacy__'
 [project]
 name = 'topobank-contact'
 description = 'This is a plugin for "topobank" for contact analysis of measurements.'
+requires-python = ">=3.8.0"
 dynamic = ['version']
 readme = 'README'
 license = { file = 'LICENSE' }
@@ -19,7 +20,7 @@ classifiers = [
     'Framework :: Django :: 3.2',
     'Framework :: Celery',
     'Intended Audience :: Developers',
-    'License :: OSI Approved :: MIT Licensev
+    'License :: OSI Approved :: MIT Licensev',
     'Operating System :: POSIX',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
@@ -30,5 +31,9 @@ classifiers = [
     'Topic :: Internet :: WWW/HTTP',
     'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
 ]
+
+[project.urls]
+homepage = 'https://contact.engineering'
+repository = 'https://github.com/ContactEngineering/topobank-contact'
 
 [tool.setuptools_scm]
