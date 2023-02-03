@@ -5,7 +5,7 @@ build-backend = 'setuptools.build_meta:__legacy__'
 [project]
 name = 'topobank-contact'
 description = 'This is a plugin for "topobank" for contact analysis of measurements.'
-requires-python = ">=3.8.0"
+requires-python = '>=3.8.0'
 dynamic = ['version']
 readme = 'README'
 license = { file = 'LICENSE' }
