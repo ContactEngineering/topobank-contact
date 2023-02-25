@@ -99,7 +99,8 @@ The file 'plot.csv' contains a table with the data used in the plot,
 one line for each calculation step. It has the following columns:
 
 - Zero-based index column
-- Normalized pressure in units of p/E*
+- Normalized mean pressure in units of p/E*. 
+  The mean pressure is the total force divided by the nominal area of contact A0. 
 - Fractional contact area in units of A/A0
 - Normalized mean gap in units of u/h_rms
 - A boolean flag (True/False) which indicates whether the calculation converged
