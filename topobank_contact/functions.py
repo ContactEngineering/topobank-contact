@@ -20,7 +20,8 @@ from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
 from topobank.utils import NumpyEncoder
 
-ART_CONTACT_MECHANICS = "contact mechanics"
+APP_NAME = "contact"
+VIZ_CONTACT_MECHANICS = "contact_mechanics"
 
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PER_DIM = 10000
@@ -212,7 +213,7 @@ def _contact_at_given_load(system, external_force, history=None, pentol=None, ma
            (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
 
 
-@register_implementation(art=ART_CONTACT_MECHANICS, name="Contact mechanics")
+@register_implementation(APP_NAME, VIZ_CONTACT_MECHANICS, "Contact mechanics")
 def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, nsteps=10,
                       pressures=None, maxiter=100, progress_recorder=None, storage_prefix=None):
     """

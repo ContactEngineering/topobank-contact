@@ -5,7 +5,7 @@ from io import BytesIO
 from django.shortcuts import reverse
 
 from ..downloads import download_contact_mechanics_analyses_as_zip
-from ..functions import ART_CONTACT_MECHANICS
+from ..functions import VIZ_CONTACT_MECHANICS
 
 
 @pytest.mark.urls('topobank_contact.tests.urls')
@@ -13,7 +13,7 @@ from ..functions import ART_CONTACT_MECHANICS
 def test_download_contact_analyses_to_zip(rf, example_contact_analysis):
     request = rf.get(reverse('analysis:download',
                              kwargs=dict(ids=str(example_contact_analysis.id),
-                                         art=ART_CONTACT_MECHANICS,
+                                         visualization_type=VIZ_CONTACT_MECHANICS,
                                          file_format='zip')))
 
     response = download_contact_mechanics_analyses_as_zip(request, [example_contact_analysis])

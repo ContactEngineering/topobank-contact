@@ -5,16 +5,13 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import reverse
 
-from topobank.analysis.registry import register_card_view_class
+#from topobank.analysis.registry import register_card_view_class
 #from topobank.analysis.views import SimpleCardView
 from topobank.analysis.utils import filter_and_order_analyses, palette_for_topographies
 from topobank.manager.models import Topography
 from topobank.analysis.models import AnalysisFunction
 
-from .functions import ART_CONTACT_MECHANICS
 
-
-@register_card_view_class(ART_CONTACT_MECHANICS)
 #class ContactMechanicsCardView(SimpleCardView):
 class ContactMechanicsCardView:
     """View for displaying a card with results from Contact Mechanics analyses.
