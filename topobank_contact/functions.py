@@ -20,7 +20,7 @@ from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
 from topobank.utils import NumpyEncoder
 
-APP_NAME = "contact"
+APP_NAME = "topobank_contact"
 VIZ_CONTACT_MECHANICS = "contact_mechanics"
 
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
