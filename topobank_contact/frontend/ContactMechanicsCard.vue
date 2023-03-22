@@ -38,8 +38,8 @@ export default {
       analyses: [],
       analysesAvailable: false,
       dois: [],
-      title: 'Contact mechanics',
-      dataSources: []
+      dataSources: [],
+      outputBackend: "svg"
     }
   },
   mounted() {
@@ -63,6 +63,8 @@ export default {
           .then(response => response.json())
           .then(data => {
             console.log(data);
+            this.dataSources = data.plotConfiguration.dataSources;
+            this.outputBackend = data.plotConfiguration.outputBackend;
             this.dois = data.dois;
             this.analysesAvailable = true;
           });
@@ -91,7 +93,7 @@ export default {
       }]
     },
     contactMechanicsCategories: function () {
-      return [{key: "subject_name", title: "Measurements"}];
+      return [{key: "subjectName", title: "Measurements"}];
     }
   }
 };
@@ -114,7 +116,7 @@ export default {
         </div>
       </div>
       <a class="text-dark" href="#" data-toggle="collapse" :data-target="`#sidebar-${uid}`">
-        <h5><i class="fa fa-bars"></i> {{ title }}</h5>
+        <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
       </a>
     </div>
     <div class="card-body">

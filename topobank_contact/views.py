@@ -62,12 +62,6 @@ def contact_mechanics_card_view(request):
         color_cycle = itertools.cycle(palette_for_topographies(len(analyses_success)))
 
         #
-        # Context information for the figure
-        #
-        context.update(dict(
-            outputBackend=settings.BOKEH_OUTPUT_BACKEND))
-
-        #
         # Generate two plots in two tabs based on same data sources
         #
         for a_index, analysis in enumerate(analyses_success):
@@ -88,7 +82,10 @@ def contact_mechanics_card_view(request):
                 'width': 1.
             }]
 
-        context['dataSources'] = data_sources_dict
+        context['plotConfiguration'] = {
+            'dataSources': data_sources_dict,
+            'outputBackend': settings.BOKEH_OUTPUT_BACKEND
+        }
 
     #
     # Calculate initial values for the parameter form on the page
@@ -112,7 +109,7 @@ def contact_mechanics_card_view(request):
 
     # context['extraWarnings'] = alerts
     context['extraWarnings'] = {
-        'alertCclass': 'alert-warning',
+        'alertClass': 'alert-warning',
         'message': """
              Translucent data points did not converge within iteration limit and may carry large errors.
              <i>A</i> is the true contact area and <i>A0</i> the apparent contact area,
