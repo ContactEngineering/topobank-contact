@@ -63,6 +63,7 @@ export default {
           .then(response => response.json())
           .then(data => {
             console.log(data);
+            this.analyses = data.analyses;
             this.dataSources = data.plotConfiguration.dataSources;
             this.outputBackend = data.plotConfiguration.outputBackend;
             this.dois = data.dois;
