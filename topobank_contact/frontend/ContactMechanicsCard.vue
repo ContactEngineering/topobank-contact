@@ -243,6 +243,10 @@ export default {
       return [{
         url: `/analysis/data/${this.selection.analysisId}/${this.selection.dataPath}/json/distributions.json`
       }];
+    },
+    analysisIds() {
+      console.log(this.analyses);
+      return this.analyses.map(a => a.id).join();
     }
   }
 };
@@ -284,7 +288,8 @@ export default {
                 :selectable="enlarged"
                 @selected="onSelected"
                 :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
-                :output-backend="outputBackend">
+                :output-backend="outputBackend"
+                ref="plot">
             </bokeh-plot>
           </div>
         </div>
@@ -567,6 +572,35 @@ export default {
           </div>
         </div>
       </div>
+    </div>
+    <div :id="`sidebar-${uid}`" class="collapse position-absolute h-100">
+      <!-- card-header sets the margins identical to the card so the title appears at the same position -->
+      <nav class="card-header navbar navbar-toggleable-xl bg-light flex-column align-items-start h-100">
+        <ul class="flex-column navbar-nav">
+          <a class="text-dark" href="#" data-toggle="collapse" :data-target="`#sidebar-${uid}`">
+            <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
+          </a>
+          <li class="nav-item mb-1 mt-1">
+            Download
+            <div class="btn-group ml-1" role="group" aria-label="Download formats">
+              <a :href="`/analysis/download/${analysisIds}/txt`" class="btn btn-default">
+                TXT
+              </a>
+              <a :href="`/analysis/download/${analysisIds}/xlsx`" class="btn btn-default">
+                XLSX
+              </a>
+              <a v-on:click="$refs.plot.download()" class="btn btn-default">
+                SVG
+              </a>
+            </div>
+          </li>
+          <li class="nav-item mb-1 mt-1">
+            <a href="#" data-toggle="modal" :data-target="`#bibliography-modal-${uid}`" class="btn btn-default  w-100">
+              Bibliography
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
   <bibliography-modal
