@@ -245,7 +245,6 @@ export default {
       }];
     },
     analysisIds() {
-      console.log(this.analyses);
       return this.analyses.map(a => a.id).join();
     }
   }
