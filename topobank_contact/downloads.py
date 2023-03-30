@@ -77,7 +77,7 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
         # Add a file with version information
         #
         zf.writestr(os.path.join(zip_dir, 'info.txt'),
-                    analysis_header_for_txt_file(analysis))
+                    analysis_header_for_txt_file(analysis, dois=True))
 
 
     #

@@ -583,11 +583,8 @@ export default {
           <li class="nav-item mb-1 mt-1">
             Download
             <div class="btn-group ml-1" role="group" aria-label="Download formats">
-              <a :href="`/analysis/download/${analysisIds}/txt`" class="btn btn-default">
-                TXT
-              </a>
-              <a :href="`/analysis/download/${analysisIds}/xlsx`" class="btn btn-default">
-                XLSX
+              <a :href="`/analysis/download/${analysisIds}/zip`" class="btn btn-default">
+                ZIP
               </a>
               <a v-on:click="$refs.plot.download()" class="btn btn-default">
                 SVG
