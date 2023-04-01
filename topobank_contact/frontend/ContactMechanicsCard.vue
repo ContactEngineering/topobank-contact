@@ -2,8 +2,6 @@
 
 import {v4 as uuid4} from 'uuid';
 
-import {BAlert, BFormSelect, BFormTags} from 'bootstrap-vue-next';
-
 import BokehPlot from 'topobank/components/BokehPlot.vue';
 import BibliographyModal from 'topobank/analysis/BibliographyModal.vue';
 import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
@@ -14,9 +12,6 @@ export default {
   name: 'contact-mechanics-card',
   components: {
     ContactMechanicsParametersModal,
-    BAlert,
-    BFormSelect,
-    BFormTags,
     BibliographyModal,
     BokehPlot,
     DeepZoomImage,

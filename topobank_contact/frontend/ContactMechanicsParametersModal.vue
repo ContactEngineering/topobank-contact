@@ -2,7 +2,7 @@
 
 import {v4 as uuid4} from 'uuid';
 
-import {BAlert, BFormSelect, BFormTags, BPopover} from 'bootstrap-vue-next';
+//import {BAlert, BFormSelect, BFormTags, BPopover} from 'bootstrap-vue-next';
 
 export default {
   name: 'contact-mechanics-parameters-modal',
