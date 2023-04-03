@@ -6,12 +6,12 @@ import BokehPlot from 'topobank/components/BokehPlot.vue';
 import BibliographyModal from 'topobank/analysis/BibliographyModal.vue';
 import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
 import TasksButton from 'topobank/analysis/TasksButton.vue';
-//import ContactMechanicsParametersModal from "topobank_contact/ContactMechanicsParametersModal.vue";
+import ContactMechanicsParametersModal from "topobank_contact/ContactMechanicsParametersModal.vue";
 
 export default {
   name: 'contact-mechanics-card',
   components: {
-  //  ContactMechanicsParametersModal,
+    ContactMechanicsParametersModal,
     BibliographyModal,
     BokehPlot,
     DeepZoomImage,
@@ -350,12 +350,10 @@ export default {
       :id="`bibliography-modal-${uid}`"
       :dois="dois">
   </bibliography-modal>
-  <!--
   <contact-mechanics-parameters-modal
       v-if="limitsCalcKwargs !== null && initialCalcKwargs !== null"
       :id="`contact-mechanics-parameters-modal-${uid}`"
       :limits-calc-kwargs="limitsCalcKwargs"
       :initial-calc-kwargs="initialCalcKwargs">
   </contact-mechanics-parameters-modal>
-  -->
 </template>

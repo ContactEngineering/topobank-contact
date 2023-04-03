@@ -2,17 +2,18 @@
 
 import {v4 as uuid4} from 'uuid';
 
-import {BAlert, BFormSelect, BFormTags, BPopover} from 'bootstrap-vue';
+//import {BAlert, BFormSelect, BFormTags, BPopover} from 'bootstrap-vue';
 
 export default {
   name: 'contact-mechanics-parameters-modal',
-  compatConfig: { MODE: 2 },
+  /*
   components: {
     BAlert,
     BFormSelect,
     BFormTags,
     BPopover
   },
+  */
   props: {
     limitsCalcKwargs: Object,
     uid: {
@@ -137,7 +138,7 @@ export default {
         <div class="modal-header">
           <h5 class="modal-title"
               :id="`contact-mechanics-parameters-modal-label-${uid}`">
-            Bibliography
+            Contact mechanics
           </h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
@@ -160,10 +161,9 @@ export default {
                         Type
                       </div>
                     </div>
-                    <b-form-select v-model="periodicity"
-                                   :options="periodicityOptions"
-                                   class="form-control">
-                    </b-form-select>
+                    <select v-model="periodicity" class="form-control form-select">
+                      <option v-for="p in periodicityOptions" :value="p.value">{{ p.text }}</option>
+                    </select>
                     <!--
                     <div class="input-group-append">
                       <div class="input-group-text">
@@ -251,12 +251,9 @@ export default {
                         Pressures
                       </div>
                     </div>
-                    <b-form-tags class="form-control"
-                                 placeholder=""
-                                 separator=" ,;"
-                                 v-model="pressures"
-                                 :disabled="pressureSelection != 'manual'">
-                    </b-form-tags>
+                    <input v-model="pressures"
+                           class="form-control"
+                           :disabled="pressureSelection != 'manual'">
                     <div class="input-group-append">
                       <div class="input-group-text">
                         E<sup>*</sup>
@@ -299,17 +296,13 @@ export default {
                 </div>
               </form>
 
-              <b-alert variant="warning"
-                       :show="recalculateWarning"
-                       dismissible
-                       v-on:dismissed="recalculateWarning = false">
-                Some of the input parameters were invalid. We have updated those parameters for you. Please
-                double-check the parameters and click <b>Recalculate</b> when ready.
-              </b-alert>
+              <div class="alert alert-warning" v-if="recalculateWarning">
+                Some of the input parameters were invalid. We have updated those parameters for you. Please double-check the parameters and click <b>Run calculation</b> when ready.
+              </div>
               <button title="Trigger calculation with given arguments"
                       class="btn btn-primary btn-block btn-lg"
                       v-on:click="recalculate">
-                Recalculate
+                Run calculation
               </button>
             </div>
           </div>
