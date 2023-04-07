@@ -15,6 +15,8 @@ export default {
   },
   */
   props: {
+    api: Object,
+    csrfToken: String,
     limitsCalcKwargs: Object,
     uid: {
       type: String,
@@ -35,12 +37,13 @@ export default {
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
       ],
       pressureSelection: "automatic",
-      pressures: [],
+      pressuresString: "",
       recalculateWarning: false
     }
   },
   methods: {
-    recalculate() {
+    runCalculation() {
+      let pressures = null;
       this.recalculateWarning = false;
 
       if (this.pressureSelection == "automatic") {
@@ -53,21 +56,22 @@ export default {
           this.recalculateWarning = true;
         }
       } else { // pressure_selection_mode == "manual"
-        const originalLength = this.pressures.length;
-        this.pressures = this.pressures.map(parseFloat);
-        this.pressures = this.pressures.filter((p) => {
-          return (p != null) && (p > 0)
-        });
-        if (originalLength > this.pressures.length) {
+        if (this.pressures === null) {
+          pressures = [1];
+        } else {
+          pressures = this.pressures.split(/[,;]/).map(parseFloat).filter(p => {
+            return (p != null) && (p > 0)
+          });
+        }
+        if (pressures.length < 1) {
+          pressures = [1];
+        } else if (pressures.length > this.limitsCalcKwargs.pressures.maxlen) {
+          pressures.length = this.limitsCalcKwargs.pressures.maxlen;
+        }
+        if (this.pressures > pressures.join()) {
           this.recalculateWarning = true;
         }
-        if (this.pressures.length < 1) {
-          this.pressures = [1];
-          this.recalculateWarning = true;
-        } else if (this.pressures.length > this.limitsCalcKwargs.pressures.maxlen) {
-          this.pressures.length = this.limitsCalcKwargs.pressures.maxlen;
-          this.recalculateWarning = true;
-        }
+        this.pressures = pressures.join();
       }
 
       if (this.maxNbIter < this.limitsCalcKwargs.maxiter.min) {
@@ -88,40 +92,30 @@ export default {
         substrate_str: this.periodicity,
         hardness: parseFloat(this.hardness),
         nsteps: this.pressureSelection == "automatic" ? parseInt(this.nsteps) : null,
-        pressures: this.pressureSelection == "manual" ? this.pressures : null,
+        pressures: this.pressureSelection == "manual" ? pressures : null,
         maxiter: parseInt(this.maxNbIter)
       };
 
-      // FIXME! Switch to fetch API, but there is some weirdness with CSRF tokens going on
-      /*
-      $.ajax({
-        type: "POST",
-        url: this.api.submitUrl,
-        timeout: 0,
-        data: {
+      console.log(this.api);
+
+      fetch(this.api.submitUrl, {
+        method: "POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': this.csrfToken
+        },
+        body: JSON.stringify({
           function_id: this.functionId,
           subjects: this.subjects,
           function_kwargs: functionKwargs,
           csrfmiddlewaretoken: this.csrfToken
-        },
-        success: (data, textStatus, xhr) => {
-          // debug_msg("Job submission successful. Status: "+xhr.status+" textStatus: "+textStatus);
-          if (xhr.status == 200) {
-            submit_analyses_card_ajax(
-                "{% url 'analysis:card' %}",
-                "card-wrapper", "contact-mechanics-card",
-                "detail", {{ function.id }}, {{ subjects_ids_json|safe }}, 0, "{{ csrf_token }}");
-            // debug_msg("Triggered card reload. Status: "+xhr.status+" textStatus: "+textStatus);
-          } else {
-            this.errorMessage = "Triggering calculation failed, status: " + xhr.status + " response:" + xhr.responseText;
-          }
-        },
-        error: (xhr, textStatus, errorThrown) => {
-          console.log("AJAX error when submitting jobs: errorThrown: " + errorThrown + " status: " + xhr.status + " responseText: " + xhr.responseText);
-          this.errorMessage = "Please report this error: " + errorThrown + xhr.status + xhr.responseText;
-        }
-      });
-       */
+        })
+      })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+          });
     },
   }
 };
@@ -151,157 +145,164 @@ export default {
             <div class="col-12">
 
               <form>
-                <div class="form-group row">
+                <div class="form-group">
 
                   <!-- Substrate selection -->
 
-                  <div class="input-group col-auto mb-3">
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        Type
+                  <div class="row">
+                    <div class="input-group col-12">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          Type
+                        </div>
                       </div>
+                      <select v-model="periodicity" class="form-control form-select">
+                        <option v-for="p in periodicityOptions" :value="p.value">{{ p.text }}</option>
+                      </select>
                     </div>
-                    <select v-model="periodicity" class="form-control form-select">
-                      <option v-for="p in periodicityOptions" :value="p.value">{{ p.text }}</option>
-                    </select>
-                    <!--
-                    <div class="input-group-append">
-                      <div class="input-group-text">
-                        <b-icon-info-circle-fill
-                            title="Type of calculation"
-                            v-b-popover.hover="'This option determines how the elastic interactions are calculated. This affects edge effects that may show up in the results at large contact area. Calculations can assume that the surface repeats periodically or that it is pushing down on a nonperiodic, infinitely expanded half-space. The latter option corresponds to mapping the surface topography on a flat punch. If not given, this value is automatically chosen as periodic for periodic topographies, else non-periodic.'">
-                        </b-icon-info-circle-fill>
-                      </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-12">
+                      <small>
+                        This option determines how the elastic interactions are calculated. This affects edge effects
+                        that may show up in the results at large contact area. Calculations can assume that the surface
+                        repeats periodically or that it is pushing down on a nonperiodic, infinitely expanded
+                        half-space.
+                        The latter option corresponds to mapping the surface topography on a flat punch.
+                      </small>
                     </div>
-                    -->
                   </div>
 
                   <!-- Hardness input -->
-                  <div class="input-group col-auto mb-3">
-
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        Hardness
+                  <div class="row">
+                    <div class="input-group col-12">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          Hardness
+                        </div>
+                        <div class="input-group-text">
+                          <input type="checkbox" v-model="enableHardness">
+                        </div>
                       </div>
-                      <div class="input-group-text">
-                        <input type="checkbox" v-model="enableHardness">
+                      <input id="hardness-input" type="number" min="0" step="0.1" class="form-control"
+                             v-model="hardness" :disabled="!enableHardness">
+                      <div class="input-group-append ">
+                        <div class="input-group-text">
+                          E<sup>*</sup>
+                        </div>
                       </div>
                     </div>
-                    <input id="hardness-input" type="number" min="0" step="0.1" class="form-control"
-                           v-model="hardness" :disabled="!enableHardness">
-                    <div class="input-group-append ">
-                      <div class="input-group-text">
-                        E<sup>*</sup>
-                      </div>
-                      <!--
-                      <div class="input-group-text">
-                        <b-icon-info-circle-fill
-                            v-b-popover.hover="'Setting a hardness enables plastic calculations. Local pressure cannot exceed hardness value.'"
-                            title="Hardness">
-                        </b-icon-info-circle-fill>
-                      </div>
-                      -->
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-12">
+                      <small>
+                        Setting a hardness enables plastic calculations. Local pressure cannot exceed the hardness
+                        value.
+                      </small>
                     </div>
                   </div>
 
                   <!-- Step selection -->
-                  <div class="input-group col-auto mb-3">
-                    <!-- Automatic -->
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        <input type="radio"
-                               name="pressure-selection"
-                               value="automatic"
-                               checked="checked"
-                               v-model="pressureSelection"
-                               aria-label="Radio button for automatic step selection">
+                  <div class="row">
+                    <div class="input-group col-12">
+                      <!-- Automatic -->
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          <input type="radio"
+                                 name="pressure-selection"
+                                 value="automatic"
+                                 checked="checked"
+                                 v-model="pressureSelection"
+                                 aria-label="Radio button for automatic step selection">
+                        </div>
+                        <div class="input-group-text">
+                          Number of steps
+                        </div>
                       </div>
-                      <div class="input-group-text">
-                        Number of steps
-                      </div>
+                      <input id='nsteps-input' type="number"
+                             :min="limitsCalcKwargs.nsteps.min"
+                             :max="limitsCalcKwargs.nsteps.max"
+                             step="1" class="form-control"
+                             v-model="nsteps"
+                             :disabled="pressureSelection != 'automatic'">
                     </div>
-                    <input id='nsteps-input' type="number"
-                           :min="limitsCalcKwargs.nsteps.min"
-                           :max="limitsCalcKwargs.nsteps.max"
-                           step="1" class="form-control"
-                           v-model="nsteps"
-                           :disabled="pressureSelection != 'automatic'">
-                    <!--
-                    <div class="input-group-append ">
-                      <div class="input-group-text">
-                        <b-icon-info-circle-fill
-                            title="Automatic step selection"
-                            v-b-popover.hover="'Number of pressure steps which are chosen automatically.'">
-                        </b-icon-info-circle-fill>
-                      </div>
-                    </div>
-                    -->
                   </div>
-                  <div class="input-group col-auto mb-3">
-                    <!-- Fixed list -->
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        <input type="radio"
-                               name="pressure-selection"
-                               value="manual"
-                               v-model="pressureSelection"
-                               aria-label="Radio button for list of values">
+                  <div class="row mb-3">
+                    <div class="col-12">
+                      <small>
+                        Select this option to run a fully automatic calculation. External pressures are selected such
+                        that contact area vs. pressure is approximately equally spaces on a log-log plot.
+                      </small>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="input-group col-12">
+                      <!-- Fixed list -->
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          <input type="radio"
+                                 name="pressure-selection"
+                                 value="manual"
+                                 v-model="pressureSelection"
+                                 aria-label="Radio button for list of values">
+                        </div>
+                        <div class="input-group-text">
+                          Pressures
+                        </div>
                       </div>
-                      <div class="input-group-text">
-                        Pressures
+                      <input v-model="pressures"
+                             class="form-control"
+                             :disabled="pressureSelection != 'manual'">
+                      <div class="input-group-append">
+                        <div class="input-group-text">
+                          E<sup>*</sup>
+                        </div>
                       </div>
                     </div>
-                    <input v-model="pressures"
-                           class="form-control"
-                           :disabled="pressureSelection != 'manual'">
-                    <div class="input-group-append">
-                      <div class="input-group-text">
-                        E<sup>*</sup>
-                      </div>
-                      <!--
-                      <div class="input-group-text">
-                        <b-icon-info-circle-fill
-                            title="Manual step selection"
-                            v-b-popover.hover="'Enter positive pressure values for which you need results. You can also copy/paste a comma-separated list of values with a comma after every number. Use dot as decimal separator. The maximum number of values is {{ limitsCalcKwargs.pressures.maxlen }}.'">
-                        </b-icon-info-circle-fill>
-                      </div>
-                      -->
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col-12">
+                      <small>
+                        Enter positive pressure values for which you need results. You can also copy/paste a
+                        comma-separated list of values with a comma after every number. Use dot as decimal separator.
+                        The maximum number of values is {{ limitsCalcKwargs.pressures.maxlen }}.
+                      </small>
                     </div>
                   </div>
 
                   <!-- Input of maximum number of iterations -->
-                  <div class="input-group col-auto">
-                    <!-- Automatic -->
-                    <div class="input-group-prepend">
-                      <div class="input-group-text">
-                        Max. number of iterations
+                  <div class="row">
+                    <div class="input-group col-12">
+                      <!-- Automatic -->
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">
+                          Max. number of iterations
+                        </div>
                       </div>
+                      <input id='maxiter-input' type="number"
+                             :min="limitsCalcKwargs.maxiter.min"
+                             :max="limitsCalcKwargs.maxiter.max"
+                             step="100" class="form-control"
+                             v-model="maxNbIter">
                     </div>
-                    <input id='maxiter-input' type="number"
-                           :min="limitsCalcKwargs.maxiter.min"
-                           :max="limitsCalcKwargs.maxiter.max"
-                           step="100" class="form-control"
-                           v-model="maxNbIter">
-                    <!--
-                    <div class="input-group-append ">
-                      <div class="input-group-text">
-                        <b-icon-info-circle-fill
-                            title="Maximum number of iterations"
-                            v-b-popover.hover="`Maximum number of iterations (<=${limitsCalcKwargs.maxiter.max}).`">
-                        </b-icon-info-circle-fill>
-                      </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <small>
+                        The maximum number of iterations is limited to {{ limitsCalcKwargs.maxiter.max }}.
+                      </small>
                     </div>
-                    -->
                   </div>
                 </div>
               </form>
 
               <div class="alert alert-warning" v-if="recalculateWarning">
-                Some of the input parameters were invalid. We have updated those parameters for you. Please double-check the parameters and click <b>Run calculation</b> when ready.
+                Some of the input parameters were invalid. We have updated those parameters for you. Please double-check
+                the parameters and click <b>Run calculation</b> when ready.
               </div>
               <button title="Trigger calculation with given arguments"
                       class="btn btn-primary btn-block btn-lg"
-                      v-on:click="recalculate">
+                      v-on:click="runCalculation">
                 Run calculation
               </button>
             </div>

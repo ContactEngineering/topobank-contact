@@ -354,6 +354,8 @@ export default {
       v-if="limitsCalcKwargs !== null && initialCalcKwargs !== null"
       :id="`contact-mechanics-parameters-modal-${uid}`"
       :limits-calc-kwargs="limitsCalcKwargs"
-      :initial-calc-kwargs="initialCalcKwargs">
+      :initial-calc-kwargs="initialCalcKwargs"
+      :api="api"
+      :csrf-token="csrfToken">
   </contact-mechanics-parameters-modal>
 </template>
