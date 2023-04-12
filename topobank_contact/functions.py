@@ -18,7 +18,7 @@ from ContactMechanics.Factory import make_system, make_plastic_system
 from topobank.analysis.functions import IncompatibleTopographyException
 from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
-from topobank.utils import NumpyEncoder
+from topobank.supplib.json import ExtendedJSONEncoder
 
 APP_NAME = "topobank_contact"
 VIZ_CONTACT_MECHANICS = "contact_mechanics"
@@ -415,7 +415,7 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         # Write to storage
         #
         default_storage_replace(f'{storage_path}/json/distributions.json',
-                                io.BytesIO(json.dumps(data_dict, cls=NumpyEncoder).encode('utf-8')))
+                                io.BytesIO(json.dumps(data_dict, cls=ExtendedJSONEncoder).encode('utf-8')))
 
         #
         # Make Deep Zoom Images of pressure, contacting points, gap and displacement
