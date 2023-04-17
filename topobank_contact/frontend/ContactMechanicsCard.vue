@@ -65,7 +65,11 @@ export default {
     this.updateCard();
   },
   methods: {
-    updateCard() {
+    updateCard(functionKwargs = null) {
+      console.log(functionKwargs);
+
+      this.analysesAvailable = false;
+
       /* Fetch JSON describing the card */
       fetch(this.apiUrl, {
         method: 'POST',
@@ -76,11 +80,14 @@ export default {
         },
         body: JSON.stringify({
           function_id: this.functionId,
-          subjects: this.subjects
+          subjects: this.subjects,
+          function_kwargs: functionKwargs
+
         })
       })
           .then(response => response.json())
           .then(data => {
+            console.log(data);
             this.analyses = data.analyses;
             this.dataSources = data.plotConfiguration.dataSources;
             this.outputBackend = data.plotConfiguration.outputBackend;
@@ -331,7 +338,7 @@ export default {
             </div>
           </li>
           <li class="nav-item mb-1 mt-1">
-            <a href="#" data-toggle="modal" :data-target="`#bibliography-modal-${uid}`" class="btn btn-default  w-100">
+            <a href="#" data-toggle="modal" :data-target="`#bibliography-modal-${uid}`" class="btn btn-default w-100">
               Bibliography
             </a>
           </li>
@@ -355,7 +362,7 @@ export default {
       :id="`contact-mechanics-parameters-modal-${uid}`"
       :limits-calc-kwargs="limitsCalcKwargs"
       :initial-calc-kwargs="initialCalcKwargs"
-      :api="api"
+      @update-contact-kwargs="updateCard"
       :csrf-token="csrfToken">
   </contact-mechanics-parameters-modal>
 </template>

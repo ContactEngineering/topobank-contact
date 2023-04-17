@@ -15,7 +15,6 @@ export default {
   },
   */
   props: {
-    api: Object,
     csrfToken: String,
     limitsCalcKwargs: Object,
     uid: {
@@ -28,7 +27,7 @@ export default {
   data() {
     return {
       enableHardness: 0,
-      hardness: undefined,
+      hardness: null,
       maxNbIter: 100,
       nsteps: 10,
       periodicity: "nonperiodic",
@@ -37,7 +36,7 @@ export default {
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
       ],
       pressureSelection: "automatic",
-      pressuresString: "",
+      pressures: null,
       recalculateWarning: false
     }
   },
@@ -90,32 +89,14 @@ export default {
 
       const functionKwargs = {
         substrate_str: this.periodicity,
-        hardness: parseFloat(this.hardness),
+        hardness: this.enableHardness ? parseFloat(this.hardness) : null,
         nsteps: this.pressureSelection == "automatic" ? parseInt(this.nsteps) : null,
         pressures: this.pressureSelection == "manual" ? pressures : null,
         maxiter: parseInt(this.maxNbIter)
       };
 
-      console.log(this.api);
-
-      fetch(this.api.submitUrl, {
-        method: "POST",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-CSRFToken': this.csrfToken
-        },
-        body: JSON.stringify({
-          function_id: this.functionId,
-          subjects: this.subjects,
-          function_kwargs: functionKwargs,
-          csrfmiddlewaretoken: this.csrfToken
-        })
-      })
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-          });
+      this.$emit('updateContactKwargs', functionKwargs);
+      this.$refs.close.click();
     },
   }
 };
@@ -134,7 +115,7 @@ export default {
               :id="`contact-mechanics-parameters-modal-label-${uid}`">
             Contact mechanics
           </h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <button ref="close" class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
@@ -231,7 +212,7 @@ export default {
                     <div class="col-12">
                       <small>
                         Select this option to run a fully automatic calculation. External pressures are selected such
-                        that contact area vs. pressure is approximately equally spaces on a log-log plot.
+                        that contact area vs. pressure is approximately equally spaced on a log-log plot.
                       </small>
                     </div>
                   </div>
@@ -289,7 +270,9 @@ export default {
                   <div class="row">
                     <div class="col-12">
                       <small>
-                        The maximum number of iterations is limited to {{ limitsCalcKwargs.maxiter.max }}.
+                        The calculation will stop if converged or after this maximum number of iterations. Data points
+                        that are not converged are shown translucent in the resulting plots. The maximum number of
+                        iterations is limited to {{ limitsCalcKwargs.maxiter.max }}.
                       </small>
                     </div>
                   </div>

@@ -18,22 +18,9 @@ from topobank.analysis.utils import AnalysisController, round_to_significant_dig
 
 @api_view(['POST'])
 def contact_mechanics_card_view(request):
-    user = request.user
-    data = request.data
+    controller = AnalysisController.from_request(request)
 
-    function_id = int(data.get('function_id'))
-    subjects = data.get('subjects')
-
-    controller = AnalysisController(user, subjects, function_id=function_id)
-
-    #
-    # Basic context data
-    #
-    context = {
-        'dois': controller.dois,
-        'extraWarnings': [],
-        'analyses': controller.to_representation(request=request)
-    }
+    print(f'{len(controller())} analyses existed.')
 
     #
     # for statistics, count views per function
@@ -44,6 +31,13 @@ def contact_mechanics_card_view(request):
     # Trigger missing analyses
     #
     controller.trigger_missing_analyses()
+
+    #
+    # Basic context data
+    #
+    context = controller.get_context(request=request)
+
+    print(controller.unique_kwargs)
 
     #
     # Filter only successful ones
