@@ -47,12 +47,14 @@ export default {
       enableHardness: 0,
       hardness: undefined,
       initialCalcKwargs: null,
+      _lastFunctionKwargs: null,
       limitsCalcKwargs: null,
       maxNbIter: 100,
       nsteps: 10,
       outputBackend: "svg",
       periodicity: "nonperiodic",
       selection: null,
+      sidebarVisible: false,
       periodicityOptions: [
         {value: "periodic", text: "Periodic (repeating array of the measurement)"},
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
@@ -65,10 +67,14 @@ export default {
     this.updateCard();
   },
   methods: {
-    updateCard(functionKwargs = null) {
+    updateCard() {
+      this.updateCardWithFunctionKwargs(this._lastFunctionKwargs);
+    },
+    updateCardWithFunctionKwargs(functionKwargs = null) {
       console.log(functionKwargs);
 
       this.analysesAvailable = false;
+      this._lastFunctionKwargs = functionKwargs;
 
       /* Fetch JSON describing the card */
       fetch(this.apiUrl, {
@@ -89,13 +95,16 @@ export default {
           .then(data => {
             console.log(data);
             this.analyses = data.analyses;
-            this.dataSources = data.plotConfiguration.dataSources;
-            this.outputBackend = data.plotConfiguration.outputBackend;
             this.dois = data.dois;
             this.initialCalcKwargs = data.initialCalcKwargs;
             this.limitsCalcKwargs = data.limitsCalcKwargs;
             this.api = data.api;
-            this.analysesAvailable = true;
+
+            if (data.plotConfiguration !== undefined) {
+              this.analysesAvailable = true;
+              this.dataSources = data.plotConfiguration.dataSources;
+              this.outputBackend = data.plotConfiguration.outputBackend;
+            }
           });
     },
     onSelected(obj, data) {
@@ -188,7 +197,7 @@ export default {
           </a>
         </div>
       </div>
-      <a class="text-dark" href="#" data-toggle="collapse" :data-target="`#sidebar-${uid}`">
+      <a class="text-dark" href="#" @click="sidebarVisible=true">
         <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
       </a>
     </div>
@@ -319,39 +328,53 @@ export default {
         </div>
       </div>
     </div>
-    <div :id="`sidebar-${uid}`" class="collapse position-absolute h-100">
-      <!-- card-header sets the margins identical to the card so the title appears at the same position -->
+    <div v-if="sidebarVisible" class="position-absolute h-100">
       <nav class="card-header navbar navbar-toggleable-xl bg-light flex-column align-items-start h-100">
         <ul class="flex-column navbar-nav">
-          <a class="text-dark" href="#" data-toggle="collapse" :data-target="`#sidebar-${uid}`">
+          <a class="text-dark"
+             href="#"
+             @click="sidebarVisible=false">
             <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
           </a>
           <li class="nav-item mb-1 mt-1">
             Download
-            <div class="btn-group ml-1" role="group" aria-label="Download formats">
-              <a :href="`/analysis/download/${analysisIds}/zip`" class="btn btn-default">
+            <div class="btn-group ml-1"
+                 role="group"
+                 aria-label="Download formats">
+              <a class="btn btn-default"
+                 :href="`/analysis/download/${analysisIds}/zip`"
+                 @click="sidebarVisible=false">
                 ZIP
               </a>
-              <a v-on:click="$refs.plot.download()" class="btn btn-default">
+              <a class="btn btn-default"
+                 @click="sidebarVisible=false; $refs.plot.download()">
                 SVG
               </a>
             </div>
           </li>
           <li class="nav-item mb-1 mt-1">
-            <a href="#" data-toggle="modal" :data-target="`#bibliography-modal-${uid}`" class="btn btn-default w-100">
+            <a class="btn btn-default w-100"
+               href="#"
+               data-toggle="modal"
+               :data-target="`#bibliography-modal-${uid}`"
+               @click="sidebarVisible=false">
               Bibliography
             </a>
           </li>
           <hr>
           <li class="nav-item mb-1 mt-1">
-            <a href="#" data-toggle="modal" :data-target="`#contact-mechanics-parameters-modal-${uid}`"
-               class="btn btn-primary w-100">
+            <a class="btn btn-primary w-100"
+               href="#"
+               data-toggle="modal"
+               :data-target="`#contact-mechanics-parameters-modal-${uid}`"
+               @click="sidebarVisible=false">
               Parameters
             </a>
           </li>
         </ul>
       </nav>
     </div>
+    <!-- card-header sets the margins identical to the card so the title appears at the same position -->
   </div>
   <bibliography-modal
       :id="`bibliography-modal-${uid}`"
@@ -362,7 +385,7 @@ export default {
       :id="`contact-mechanics-parameters-modal-${uid}`"
       :limits-calc-kwargs="limitsCalcKwargs"
       :initial-calc-kwargs="initialCalcKwargs"
-      @update-contact-kwargs="updateCard"
+      @update-contact-kwargs="updateCardWithFunctionKwargs"
       :csrf-token="csrfToken">
   </contact-mechanics-parameters-modal>
 </template>
