@@ -71,8 +71,6 @@ export default {
       this.updateCardWithFunctionKwargs(this._lastFunctionKwargs);
     },
     updateCardWithFunctionKwargs(functionKwargs = null) {
-      console.log(functionKwargs);
-
       this.analysesAvailable = false;
       this._lastFunctionKwargs = functionKwargs;
 
@@ -93,7 +91,6 @@ export default {
       })
           .then(response => response.json())
           .then(data => {
-            console.log(data);
             this.analyses = data.analyses;
             this.dois = data.dois;
             this.initialCalcKwargs = data.initialCalcKwargs;
