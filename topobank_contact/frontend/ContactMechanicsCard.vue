@@ -67,6 +67,7 @@ export default {
   },
   methods: {
     updateCard() {
+      console.log('updateCard');
       this.updateCardWithFunctionKwargs(this._functionKwargs);
     },
     updateCardWithFunctionKwargs(functionKwargs = null) {
@@ -75,6 +76,7 @@ export default {
 
       this._analysesAvailable = false;
       this._analyses = [];
+      this._functionKwargs = functionKwargs;
 
       /* Fetch JSON describing the card */
       fetch(this.apiUrl, {
@@ -96,7 +98,14 @@ export default {
             console.log(data);
             this._analyses = data.analyses;
             this._dois = data.dois;
-            this._functionKwargs = data.functionKwargs;
+            if (this._functionKwargs === null) {
+              this._functionKwargs = data.uniqueKwargs;
+            } else {
+              this._functionKwargs = {
+                ...this._functionKwargs,
+                ...data.uniqueKwargs  // override since the server may report changes
+              };
+            }
             this._limitsToFunctionKwargs = data.limitsToFunctionKwargs;
             this._api = data.api;
 

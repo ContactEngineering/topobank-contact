@@ -17,17 +17,19 @@ export default {
   },
   data() {
     return {
-      _enableHardness: 0,
-      _hardness: null,
-      _maxNbIter: 100,
-      _nbSteps: 10,
-      _periodicity: "nonperiodic",
+      _enableHardness: this.functionKwargs === undefined ? false : this.functionKwargs.hardness !== null,
+      _hardness: this.functionKwargs === undefined ? null : this.functionKwargs.hardness,
+      _maxNbIter: this.functionKwargs === undefined ? 100 : this.functionKwargs.maxiter,
+      _nbSteps: this.functionKwargs === undefined ? 10 : this.functionKwargs.nsteps,
+      _periodicity: this.unctionKwargs === undefined ? "nonperiodic" : this.functionKwargs.substrate_str,
       _periodicityOptions: [
         {value: "periodic", text: "Periodic (repeating array of the measurement)"},
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
       ],
-      _pressureSelection: "automatic",
-      _pressures: null,
+      _pressureSelection:
+          this.functionKwargs === undefined ? "automatic" :
+              (this.functionKwargs.pressures === null ? "automatic" : "manual"),
+      _pressures: this.functionKwargs === undefined ? null : this.functionKwargs.pressures,
       _recalculateWarning: false
     }
   },
@@ -85,8 +87,6 @@ export default {
         pressures: this._pressureSelection == "manual" ? _pressures : null,
         maxiter: parseInt(this._maxNbIter)
       };
-
-      console.log(this._nbSteps);
 
       this.$emit('updateContactKwargs', functionKwargs);
       this.$refs.close.click();
@@ -152,7 +152,7 @@ export default {
                     <div class="input-group col-12">
                       <div class="input-group-prepend">
                         <div class="input-group-text">
-                          _hardness
+                          Hardness
                         </div>
                         <div class="input-group-text">
                           <input type="checkbox" v-model="_enableHardness">
@@ -221,7 +221,7 @@ export default {
                                  aria-label="Radio button for list of values">
                         </div>
                         <div class="input-group-text">
-                          _pressures
+                          Pressures
                         </div>
                       </div>
                       <input v-model="_pressures"

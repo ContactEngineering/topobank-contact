@@ -43,10 +43,11 @@ def contact_mechanics_card_view(request):
     analyses_success = controller(['su'], True)
 
     if len(analyses_success) > 0:
-
-        data_sources_dict = []
-
+        #
+        # order analyses such that surface analyses are coming last (plotted on top)
+        #
         analyses_success = filter_and_order_analyses(analyses_success)
+        data_sources_dict = []
 
         #
         # Prepare colors to be used for different analyses
@@ -79,35 +80,6 @@ def contact_mechanics_card_view(request):
             'outputBackend': settings.BOKEH_OUTPUT_BACKEND
         }
 
-    #
-    # Calculate initial values for the parameter form on the page
-    # We only handle topographies here so far, so we only take into account
-    # parameters for topography analyses
-    #
-    topography_ct = ContentType.objects.get_for_model(Topography)
-    try:
-        unique_kwargs = context['uniqueKwargs'][topography_ct]
-    except KeyError:
-        unique_kwargs = None
-    if unique_kwargs:
-        initial_calc_kwargs = unique_kwargs
-    else:
-        # default initial arguments for form if we don't have unique common arguments
-        contact_mechanics_func = AnalysisFunction.objects.get(name="Contact mechanics")
-        initial_calc_kwargs = contact_mechanics_func.get_default_kwargs(topography_ct)
-        initial_calc_kwargs['substrate_str'] = 'nonperiodic'  # because most topographies are non-periodic
-
-    # context['extraWarnings'] = alerts
-    context['extraWarnings'] = {
-        'alertClass': 'alert-warning',
-        'message': """
-             Translucent data points did not converge within iteration limit and may carry large errors.
-             <i>A</i> is the true contact area and <i>A0</i> the apparent contact area,
-             i.e. the size of the provided measurement.
-             """
-    }
-
-    context['functionKwargs'] = initial_calc_kwargs
     context['limitsToFunctionKwargs'] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
 
     context['api'] = {
