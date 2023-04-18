@@ -39,28 +39,27 @@ export default {
   },
   data() {
     return {
-      analyses: [],
-      analysesAvailable: false,
-      api: {},
-      dois: [],
-      dataSources: [],
-      enableHardness: 0,
-      hardness: undefined,
-      initialCalcKwargs: null,
-      _lastFunctionKwargs: null,
-      limitsCalcKwargs: null,
-      maxNbIter: 100,
-      nsteps: 10,
-      outputBackend: "svg",
-      periodicity: "nonperiodic",
-      selection: null,
-      sidebarVisible: false,
-      periodicityOptions: [
+      _analyses: [],
+      _analysesAvailable: false,
+      _api: {},
+      _dois: [],
+      _dataSources: [],
+      _enable_hardness: 0,
+      _hardness: undefined,
+      _functionKwargs: null,
+      _limitsToFunctionKwargs: null,
+      _maxNbIter: 100,
+      _nbSteps: 10,
+      _outputBackend: "svg",
+      _periodicity: "nonperiodic",
+      _selection: null,
+      _sidebarVisible: false,
+      _periodicityOptions: [
         {value: "periodic", text: "Periodic (repeating array of the measurement)"},
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
       ],
-      pressureSelection: "automatic",
-      pressures: []
+      _pressureselection: "automatic",
+      _pressures: []
     }
   },
   mounted() {
@@ -68,11 +67,14 @@ export default {
   },
   methods: {
     updateCard() {
-      this.updateCardWithFunctionKwargs(this._lastFunctionKwargs);
+      this.updateCardWithFunctionKwargs(this._functionKwargs);
     },
     updateCardWithFunctionKwargs(functionKwargs = null) {
-      this.analysesAvailable = false;
-      this._lastFunctionKwargs = functionKwargs;
+      console.log('updateCardWithFunctionKwargs');
+      console.log(functionKwargs);
+
+      this._analysesAvailable = false;
+      this._analyses = [];
 
       /* Fetch JSON describing the card */
       fetch(this.apiUrl, {
@@ -91,16 +93,17 @@ export default {
       })
           .then(response => response.json())
           .then(data => {
-            this.analyses = data.analyses;
-            this.dois = data.dois;
-            this.initialCalcKwargs = data.initialCalcKwargs;
-            this.limitsCalcKwargs = data.limitsCalcKwargs;
-            this.api = data.api;
+            console.log(data);
+            this._analyses = data.analyses;
+            this._dois = data.dois;
+            this._functionKwargs = data.functionKwargs;
+            this._limitsToFunctionKwargs = data.limitsToFunctionKwargs;
+            this._api = data.api;
 
             if (data.plotConfiguration !== undefined) {
-              this.analysesAvailable = true;
-              this.dataSources = data.plotConfiguration.dataSources;
-              this.outputBackend = data.plotConfiguration.outputBackend;
+              this._analysesAvailable = true;
+              this._dataSources = data.plotConfiguration.dataSources;
+              this._outputBackend = data.plotConfiguration.outputBackend;
             }
           });
     },
@@ -108,7 +111,7 @@ export default {
       const name = data.source.name;
       const path = data.source.data.dataPath[data.source.selected.indices[0]];
       const splitPath = path.split('/');
-      this.selection = {
+      this._selection = {
         analysisId: name.split('-')[1],
         dataPath: splitPath[splitPath.length - 1]  // We need to do some name mangling
       };
@@ -168,11 +171,11 @@ export default {
     },
     distributionDataSources: function () {
       return [{
-        url: `/analysis/data/${this.selection.analysisId}/${this.selection.dataPath}/json/distributions.json`
+        url: `/analysis/data/${this._selection.analysisId}/${this._selection.dataPath}/json/distributions.json`
       }];
     },
     analysisIds() {
-      return this.analyses.map(a => a.id).join();
+      return this._analyses.map(a => a.id).join();
     }
   }
 };
@@ -182,8 +185,9 @@ export default {
   <div class="card search-result-card">
     <div class="card-header">
       <div class="btn-group btn-group-sm float-right">
-        <tasks-button :analyses="analyses"
-                      :csrf-token="csrfToken">
+        <tasks-button :analyses="_analyses"
+                      :csrf-token="csrfToken"
+                      @task-status-changed="updateCard">
         </tasks-button>
         <button @click="updateCard" class="btn btn-default float-right ml-1">
           <i class="fa fa-redo"></i>
@@ -194,27 +198,27 @@ export default {
           </a>
         </div>
       </div>
-      <a class="text-dark" href="#" @click="sidebarVisible=true">
+      <a class="text-dark" href="#" @click="_sidebarVisible=true">
         <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
       </a>
     </div>
     <div class="card-body">
-      <div v-if="!analysesAvailable" class="tab-content">
+      <div v-if="!_analysesAvailable" class="tab-content">
         <span class="spinner"></span>
         <div>Please wait...</div>
       </div>
 
-      <div v-if="analysesAvailable" class="tab-content row">
+      <div v-if="_analysesAvailable" class="tab-content row">
         <div :class="{ 'col-sm-5': enlarged, 'col-sm-12': !enlarged }">
           <div class="tab-pane show active" id="plot-{{ card_id }}" role="tabpanel" aria-labelledby="card-tab">
             <bokeh-plot
                 :plots="contactMechanicsPlots"
                 :categories="contactMechanicsCategories"
-                :data-sources="dataSources"
+                :data-sources="_dataSources"
                 :selectable="enlarged"
                 @selected="onSelected"
                 :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
-                :output-backend="outputBackend"
+                :output-backend="_outputBackend"
                 ref="plot">
             </bokeh-plot>
           </div>
@@ -252,85 +256,85 @@ export default {
           <!-- Tab contents on right side -->
           <div class="tab-content">
             <div class="tab-pane fade active show" id="contacting-points-tab">
-              <div v-if="selection === null" id="geometry" class="alert alert-info">For contact geometry, select a point
+              <div v-if="_selection === null" id="geometry" class="alert alert-info">For contact geometry, select a point
                 in the graphs on the left!
               </div>
-              <deep-zoom-image v-if="selection !== null"
-                               :prefix-url="`/analysis/data/${selection.analysisId}/${selection.dataPath}/dzi/contacting-points/`"
+              <deep-zoom-image v-if="_selection !== null"
+                               :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/contacting-points/`"
                                ref="contactingPoints">
               </deep-zoom-image>
-              <div v-if="selection !== null" class="pull-right">
+              <div v-if="_selection !== null" class="pull-right">
                 <a class="btn btn-default btn-block btn-lg mt-3" v-on:click="$refs.contactingPoints.download()">
                   Download PNG
                 </a>
               </div>
             </div>
             <div class="tab-pane fade" id="pressure-tab">
-              <div v-if="selection === null" id="pressure" class="alert alert-info">For contact pressure, select a point
+              <div v-if="_selection === null" id="pressure" class="alert alert-info">For contact pressure, select a point
                 in the graphs on the left!
               </div>
-              <deep-zoom-image v-if="selection !== null"
-                               :prefix-url="`/analysis/data/${selection.analysisId}/${selection.dataPath}/dzi/pressure/`"
+              <deep-zoom-image v-if="_selection !== null"
+                               :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/pressure/`"
                                :colorbar="true"
                                ref="pressure">
               </deep-zoom-image>
-              <div v-if="selection !== null" class="pull-right">
+              <div v-if="_selection !== null" class="pull-right">
                 <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.pressure.download()">
                   Download PNG
                 </a>
               </div>
             </div>
             <div class="tab-pane fade" id="displacement-tab">
-              <div v-if="selection === null" id="displacement" class="alert alert-info">For displacement, select a point
+              <div v-if="_selection === null" id="displacement" class="alert alert-info">For displacement, select a point
                 in the graphs on the left!
               </div>
-              <deep-zoom-image v-if="selection !== null"
-                               :prefix-url="`/analysis/data/${selection.analysisId}/${selection.dataPath}/dzi/displacement/`"
+              <deep-zoom-image v-if="_selection !== null"
+                               :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/displacement/`"
                                :colorbar="true"
                                ref="displacement">
               </deep-zoom-image>
-              <div v-if="selection !== null" class="pull-right">
+              <div v-if="_selection !== null" class="pull-right">
                 <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.displacement.download()">
                   Download PNG
                 </a>
               </div>
             </div>
             <div class="tab-pane fade" id="gap-tab">
-              <div v-if="selection === null" id="gap" class="alert alert-info">For gap, select a point in the graphs on
+              <div v-if="_selection === null" id="gap" class="alert alert-info">For gap, select a point in the graphs on
                 the left!
               </div>
-              <deep-zoom-image v-if="selection !== null"
-                               :prefix-url="`/analysis/data/${selection.analysisId}/${selection.dataPath}/dzi/gap/`"
+              <deep-zoom-image v-if="_selection !== null"
+                               :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/gap/`"
                                :colorbar="true"
                                ref="gap">
               </deep-zoom-image>
-              <div v-if="selection !== null" class="pull-right">
+              <div v-if="_selection !== null" class="pull-right">
                 <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.gap.download()">
                   Download PNG
                 </a>
               </div>
             </div>
             <div class="tab-pane fade" id="distribution-function-tab">
-              <div v-if="selection === null" id="distribution-function" class="alert alert-info">For pressure
+              <div v-if="_selection === null" id="distribution-function" class="alert alert-info">For pressure
                 distribution, select a point in the graphs on the left!
               </div>
               <bokeh-plot
-                  v-if="selection !== null"
+                  v-if="_selection !== null"
                   :plots="distributionPlots"
                   :data-sources="distributionDataSources"
-                  :output-backend="outputBackend">
+                  :output-backend="_outputBackend">
               </bokeh-plot>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="sidebarVisible" class="position-absolute h-100">
+    <div v-if="_sidebarVisible" class="position-absolute h-100">
       <nav class="card-header navbar navbar-toggleable-xl bg-light flex-column align-items-start h-100">
         <ul class="flex-column navbar-nav">
           <a class="text-dark"
              href="#"
-             @click="sidebarVisible=false">
+             @click="_sidebarVisible=false">
             <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
           </a>
           <li class="nav-item mb-1 mt-1">
@@ -340,11 +344,11 @@ export default {
                  aria-label="Download formats">
               <a class="btn btn-default"
                  :href="`/analysis/download/${analysisIds}/zip`"
-                 @click="sidebarVisible=false">
+                 @click="_sidebarVisible=false">
                 ZIP
               </a>
               <a class="btn btn-default"
-                 @click="sidebarVisible=false; $refs.plot.download()">
+                 @click="_sidebarVisible=false; $refs.plot.download()">
                 SVG
               </a>
             </div>
@@ -354,7 +358,7 @@ export default {
                href="#"
                data-toggle="modal"
                :data-target="`#bibliography-modal-${uid}`"
-               @click="sidebarVisible=false">
+               @click="_sidebarVisible=false">
               Bibliography
             </a>
           </li>
@@ -364,7 +368,7 @@ export default {
                href="#"
                data-toggle="modal"
                :data-target="`#contact-mechanics-parameters-modal-${uid}`"
-               @click="sidebarVisible=false">
+               @click="_sidebarVisible=false">
               Parameters
             </a>
           </li>
@@ -375,13 +379,13 @@ export default {
   </div>
   <bibliography-modal
       :id="`bibliography-modal-${uid}`"
-      :dois="dois">
+      :dois="_dois">
   </bibliography-modal>
   <contact-mechanics-parameters-modal
-      v-if="limitsCalcKwargs !== null && initialCalcKwargs !== null"
+      v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
       :id="`contact-mechanics-parameters-modal-${uid}`"
-      :limits-calc-kwargs="limitsCalcKwargs"
-      :initial-calc-kwargs="initialCalcKwargs"
+      :limits-to-function-kwargs="_limitsToFunctionKwargs"
+      :function-kwargs="_functionKwargs"
       @update-contact-kwargs="updateCardWithFunctionKwargs"
       :csrf-token="csrfToken">
   </contact-mechanics-parameters-modal>

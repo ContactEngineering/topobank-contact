@@ -37,8 +37,6 @@ def contact_mechanics_card_view(request):
     #
     context = controller.get_context(request=request)
 
-    print(controller.unique_kwargs)
-
     #
     # Filter only successful ones
     #
@@ -99,8 +97,6 @@ def contact_mechanics_card_view(request):
         initial_calc_kwargs = contact_mechanics_func.get_default_kwargs(topography_ct)
         initial_calc_kwargs['substrate_str'] = 'nonperiodic'  # because most topographies are non-periodic
 
-    context['initialCalcKwargs'] = initial_calc_kwargs
-
     # context['extraWarnings'] = alerts
     context['extraWarnings'] = {
         'alertClass': 'alert-warning',
@@ -111,7 +107,8 @@ def contact_mechanics_card_view(request):
              """
     }
 
-    context['limitsCalcKwargs'] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
+    context['functionKwargs'] = initial_calc_kwargs
+    context['limitsToFunctionKwargs'] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
 
     context['api'] = {
         'submitUrl': reverse('analysis:card-submit')

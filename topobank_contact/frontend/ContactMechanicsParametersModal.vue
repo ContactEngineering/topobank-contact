@@ -2,21 +2,12 @@
 
 import {v4 as uuid4} from 'uuid';
 
-//import {BAlert, BFormSelect, BFormTags, BPopover} from 'bootstrap-vue';
-
 export default {
   name: 'contact-mechanics-parameters-modal',
-  /*
-  components: {
-    BAlert,
-    BFormSelect,
-    BFormTags,
-    BPopover
-  },
-  */
   props: {
     csrfToken: String,
-    limitsCalcKwargs: Object,
+    functionKwargs: Object,
+    limitsToFunctionKwargs: Object,
     uid: {
       type: String,
       default() {
@@ -26,74 +17,76 @@ export default {
   },
   data() {
     return {
-      enableHardness: 0,
-      hardness: null,
-      maxNbIter: 100,
-      nsteps: 10,
-      periodicity: "nonperiodic",
-      periodicityOptions: [
+      _enableHardness: 0,
+      _hardness: null,
+      _maxNbIter: 100,
+      _nbSteps: 10,
+      _periodicity: "nonperiodic",
+      _periodicityOptions: [
         {value: "periodic", text: "Periodic (repeating array of the measurement)"},
         {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
       ],
-      pressureSelection: "automatic",
-      pressures: null,
-      recalculateWarning: false
+      _pressureSelection: "automatic",
+      _pressures: null,
+      _recalculateWarning: false
     }
   },
   methods: {
     runCalculation() {
-      let pressures = null;
-      this.recalculateWarning = false;
+      let _pressures = null;
+      this._recalculateWarning = false;
 
-      if (this.pressureSelection == "automatic") {
-        if (this.nsteps < this.limitsCalcKwargs.nsteps.min) {
-          this.nsteps = this.limitsCalcKwargs.nsteps.min;
-          this.recalculateWarning = true;
+      if (this._pressureSelection == "automatic") {
+        if (this._nbSteps < this.limitsToFunctionKwargs.nsteps.min) {
+          this._nbSteps = this.limitsToFunctionKwargs.nsteps.min;
+          this._recalculateWarning = true;
         }
-        if (this.nsteps > this.limitsCalcKwargs.nsteps.max) {
-          this.nsteps = this.limitsCalcKwargs.nsteps.max;
-          this.recalculateWarning = true;
+        if (this._nbSteps > this.limitsToFunctionKwargs.nsteps.max) {
+          this._nbSteps = this.limitsToFunctionKwargs.nsteps.max;
+          this._recalculateWarning = true;
         }
       } else { // pressure_selection_mode == "manual"
-        if (this.pressures === null) {
-          pressures = [1];
+        if (this._pressures === null) {
+          _pressures = [1];
         } else {
-          pressures = this.pressures.split(/[,;]/).map(parseFloat).filter(p => {
+          _pressures = this._pressures.split(/[,;]/).map(parseFloat).filter(p => {
             return (p != null) && (p > 0)
           });
         }
-        if (pressures.length < 1) {
-          pressures = [1];
-        } else if (pressures.length > this.limitsCalcKwargs.pressures.maxlen) {
-          pressures.length = this.limitsCalcKwargs.pressures.maxlen;
+        if (_pressures.length < 1) {
+          _pressures = [1];
+        } else if (_pressures.length > this.limitsToFunctionKwargs.pressures.maxlen) {
+          _pressures.length = this.limitsToFunctionKwargs.pressures.maxlen;
         }
-        if (this.pressures > pressures.join()) {
-          this.recalculateWarning = true;
+        if (this._pressures > _pressures.join()) {
+          this._recalculateWarning = true;
         }
-        this.pressures = pressures.join();
+        this._pressures = _pressures.join();
       }
 
-      if (this.maxNbIter < this.limitsCalcKwargs.maxiter.min) {
-        this.maxNbIter = this.limitsCalcKwargs.maxiter.min;
-        this.recalculateWarning = true;
+      if (this._maxNbIter < this.limitsToFunctionKwargs.maxiter.min) {
+        this._maxNbIter = this.limitsToFunctionKwargs.maxiter.min;
+        this._recalculateWarning = true;
       }
-      if (this.maxNbIter > this.limitsCalcKwargs.maxiter.max) {
-        this.maxNbIter = this.limitsCalcKwargs.maxiter.max;
-        this.recalculateWarning = true;
+      if (this._maxNbIter > this.limitsToFunctionKwargs.maxiter.max) {
+        this._maxNbIter = this.limitsToFunctionKwargs.maxiter.max;
+        this._recalculateWarning = true;
       }
 
-      if (this.recalculateWarning) {
+      if (this._recalculateWarning) {
         // Return here if some parameters were modified
         return;
       }
 
       const functionKwargs = {
-        substrate_str: this.periodicity,
-        hardness: this.enableHardness ? parseFloat(this.hardness) : null,
-        nsteps: this.pressureSelection == "automatic" ? parseInt(this.nsteps) : null,
-        pressures: this.pressureSelection == "manual" ? pressures : null,
-        maxiter: parseInt(this.maxNbIter)
+        substrate_str: this._periodicity,
+        hardness: this._enableHardness ? parseFloat(this._hardness) : null,
+        nsteps: this._pressureSelection == "automatic" ? parseInt(this._nbSteps) : null,
+        pressures: this._pressureSelection == "manual" ? _pressures : null,
+        maxiter: parseInt(this._maxNbIter)
       };
+
+      console.log(this._nbSteps);
 
       this.$emit('updateContactKwargs', functionKwargs);
       this.$refs.close.click();
@@ -137,8 +130,8 @@ export default {
                           Type
                         </div>
                       </div>
-                      <select v-model="periodicity" class="form-control form-select">
-                        <option v-for="p in periodicityOptions" :value="p.value">{{ p.text }}</option>
+                      <select v-model="_periodicity" class="form-control form-select">
+                        <option v-for="p in _periodicityOptions" :value="p.value">{{ p.text }}</option>
                       </select>
                     </div>
                   </div>
@@ -154,19 +147,19 @@ export default {
                     </div>
                   </div>
 
-                  <!-- Hardness input -->
+                  <!-- _hardness input -->
                   <div class="row">
                     <div class="input-group col-12">
                       <div class="input-group-prepend">
                         <div class="input-group-text">
-                          Hardness
+                          _hardness
                         </div>
                         <div class="input-group-text">
-                          <input type="checkbox" v-model="enableHardness">
+                          <input type="checkbox" v-model="_enableHardness">
                         </div>
                       </div>
-                      <input id="hardness-input" type="number" min="0" step="0.1" class="form-control"
-                             v-model="hardness" :disabled="!enableHardness">
+                      <input id="_hardness-input" type="number" min="0" step="0.1" class="form-control"
+                             v-model="_hardness" :disabled="!_enableHardness">
                       <div class="input-group-append ">
                         <div class="input-group-text">
                           E<sup>*</sup>
@@ -193,19 +186,19 @@ export default {
                                  name="pressure-selection"
                                  value="automatic"
                                  checked="checked"
-                                 v-model="pressureSelection"
+                                 v-model="_pressureSelection"
                                  aria-label="Radio button for automatic step selection">
                         </div>
                         <div class="input-group-text">
                           Number of steps
                         </div>
                       </div>
-                      <input id='nsteps-input' type="number"
-                             :min="limitsCalcKwargs.nsteps.min"
-                             :max="limitsCalcKwargs.nsteps.max"
+                      <input type="number"
+                             :min="limitsToFunctionKwargs.nsteps.min"
+                             :max="limitsToFunctionKwargs.nsteps.max"
                              step="1" class="form-control"
-                             v-model="nsteps"
-                             :disabled="pressureSelection != 'automatic'">
+                             v-model="_nbSteps"
+                             :disabled="_pressureSelection != 'automatic'">
                     </div>
                   </div>
                   <div class="row mb-3">
@@ -224,16 +217,16 @@ export default {
                           <input type="radio"
                                  name="pressure-selection"
                                  value="manual"
-                                 v-model="pressureSelection"
+                                 v-model="_pressureSelection"
                                  aria-label="Radio button for list of values">
                         </div>
                         <div class="input-group-text">
-                          Pressures
+                          _pressures
                         </div>
                       </div>
-                      <input v-model="pressures"
+                      <input v-model="_pressures"
                              class="form-control"
-                             :disabled="pressureSelection != 'manual'">
+                             :disabled="_pressureSelection != 'manual'">
                       <div class="input-group-append">
                         <div class="input-group-text">
                           E<sup>*</sup>
@@ -246,7 +239,7 @@ export default {
                       <small>
                         Enter positive pressure values for which you need results. You can also copy/paste a
                         comma-separated list of values with a comma after every number. Use dot as decimal separator.
-                        The maximum number of values is {{ limitsCalcKwargs.pressures.maxlen }}.
+                        The maximum number of values is {{ limitsToFunctionKwargs.pressures.maxlen }}.
                       </small>
                     </div>
                   </div>
@@ -261,10 +254,10 @@ export default {
                         </div>
                       </div>
                       <input id='maxiter-input' type="number"
-                             :min="limitsCalcKwargs.maxiter.min"
-                             :max="limitsCalcKwargs.maxiter.max"
+                             :min="limitsToFunctionKwargs.maxiter.min"
+                             :max="limitsToFunctionKwargs.maxiter.max"
                              step="100" class="form-control"
-                             v-model="maxNbIter">
+                             v-model="_maxNbIter">
                     </div>
                   </div>
                   <div class="row">
@@ -272,14 +265,14 @@ export default {
                       <small>
                         The calculation will stop if converged or after this maximum number of iterations. Data points
                         that are not converged are shown translucent in the resulting plots. The maximum number of
-                        iterations is limited to {{ limitsCalcKwargs.maxiter.max }}.
+                        iterations is limited to {{ limitsToFunctionKwargs.maxiter.max }}.
                       </small>
                     </div>
                   </div>
                 </div>
               </form>
 
-              <div class="alert alert-warning" v-if="recalculateWarning">
+              <div class="alert alert-warning" v-if="_recalculateWarning">
                 Some of the input parameters were invalid. We have updated those parameters for you. Please double-check
                 the parameters and click <b>Run calculation</b> when ready.
               </div>
