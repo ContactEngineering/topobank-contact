@@ -109,6 +109,9 @@ export default {
             this._limitsToFunctionKwargs = data.limitsToFunctionKwargs;
             this._api = data.api;
 
+            console.log('Received functionKwargs');
+            console.log(this._functionKwargs);
+
             if (data.plotConfiguration !== undefined) {
               this._analysesAvailable = true;
               this._dataSources = data.plotConfiguration.dataSources;
@@ -124,6 +127,9 @@ export default {
         analysisId: name.split('-')[1],
         dataPath: splitPath[splitPath.length - 1]  // We need to do some name mangling
       };
+    },
+    taskStatusChanged(anyTaskIsRunning) {
+      console.log('ContactMechanicsCard.taskStatusChanged ' + anyTaskIsRunning);
     }
   },
   computed: {
@@ -196,7 +202,7 @@ export default {
       <div class="btn-group btn-group-sm float-right">
         <tasks-button :analyses="_analyses"
                       :csrf-token="csrfToken"
-                      @task-status-changed="updateCard">
+                      @task-status-changed="taskStatusChanged">
         </tasks-button>
         <button @click="updateCard" class="btn btn-default float-right ml-1">
           <i class="fa fa-redo"></i>
