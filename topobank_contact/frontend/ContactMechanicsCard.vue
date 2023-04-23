@@ -40,8 +40,8 @@ export default {
   data() {
     return {
       _analyses: [],
-      _analysesAvailable: false,
       _api: {},
+      _cardStatus: 'mounted',  // 'mounted', 'waiting-for-first-result', 'analyses-partially-available', 'analyses-finished'
       _dois: [],
       _dataSources: [],
       _enable_hardness: 0,
@@ -74,7 +74,6 @@ export default {
       console.log('updateCardWithFunctionKwargs');
       console.log(functionKwargs);
 
-      this._analysesAvailable = false;
       this._analyses = [];
       this._functionKwargs = functionKwargs;
 
@@ -113,9 +112,15 @@ export default {
             console.log(this._functionKwargs);
 
             if (data.plotConfiguration !== undefined) {
-              this._analysesAvailable = true;
+              if (this._analyses.map(a => a.task_state == 'pe' || a.task_state == 'st').some(v => v)) {
+                this._cardStatus = 'analyses-partially-available';
+              } else {
+                this._cardStatus = 'analyses-partially-available';
+              }
               this._dataSources = data.plotConfiguration.dataSources;
               this._outputBackend = data.plotConfiguration.outputBackend;
+            } else {
+                this._cardStatus = 'waiting-for-first-result';
             }
           });
     },
@@ -128,8 +133,14 @@ export default {
         dataPath: splitPath[splitPath.length - 1]  // We need to do some name mangling
       };
     },
-    taskStatusChanged(anyTaskIsRunning) {
-      console.log('ContactMechanicsCard.taskStatusChanged ' + anyTaskIsRunning);
+    taskStateChanged(anyTaskIsRunning) {
+      console.log('ContactMechanicsCard.taskStateChanged ' + anyTaskIsRunning);
+      /*
+      if (!anyTaskIsRunning) {
+          // All tasks finished, reload card
+          this.updateCard();
+      }
+       */
     }
   },
   computed: {
@@ -202,7 +213,7 @@ export default {
       <div class="btn-group btn-group-sm float-right">
         <tasks-button :analyses="_analyses"
                       :csrf-token="csrfToken"
-                      @task-status-changed="taskStatusChanged">
+                      @task-state-changed="taskStateChanged">
         </tasks-button>
         <button @click="updateCard" class="btn btn-default float-right ml-1">
           <i class="fa fa-redo"></i>
@@ -218,12 +229,16 @@ export default {
       </a>
     </div>
     <div class="card-body">
-      <div v-if="!_analysesAvailable" class="tab-content">
+      <div v-if="_cardStatus == 'mounted'" class="tab-content">
         <span class="spinner"></span>
         <div>Please wait...</div>
       </div>
+      <div v-if="_cardStatus == 'waiting-for-first-result'" class="tab-content">
+        <span class="spinner"></span>
+        <div>Analyses are not yet available, but tasks are scheduled or running. Please wait...</div>
+      </div>
 
-      <div v-if="_analysesAvailable" class="tab-content row">
+      <div v-if="_cardStatus != 'waiting-for-first-result' && _dataSources.length > 0" class="tab-content row">
         <div :class="{ 'col-sm-5': enlarged, 'col-sm-12': !enlarged }">
           <div class="tab-pane show active" id="plot-{{ card_id }}" role="tabpanel" aria-labelledby="card-tab">
             <bokeh-plot
