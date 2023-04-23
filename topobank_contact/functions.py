@@ -462,12 +462,5 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         mean_gaps=mean_gap[sort_order] / rms_height,
         converged=converged[sort_order],
         data_paths=data_paths[sort_order],
-        effective_kwargs=dict(  # keyword arguments required to rerun this calculation
-            substrate_str=substrate_str,
-            hardness=hardness,
-            nsteps=nsteps,
-            pressures=pressures,
-            maxiter=maxiter,
-        ),
         alerts=alerts,
     )
