@@ -49,7 +49,10 @@ export default {
       _functionKwargs: null,
       _limitsToFunctionKwargs: null,
       _maxNbIter: 100,
+      _nbFailed: 0,
+      _nbRunningOrPending: 0,
       _nbSteps: 10,
+      _nbSuccess: 0,
       _outputBackend: "svg",
       _periodicity: "nonperiodic",
       _selection: null,
@@ -115,7 +118,7 @@ export default {
               if (this._analyses.map(a => a.task_state == 'pe' || a.task_state == 'st').some(v => v)) {
                 this._cardStatus = 'analyses-partially-available';
               } else {
-                this._cardStatus = 'analyses-partially-available';
+                this._cardStatus = 'analyses-finished';
               }
               this._dataSources = data.plotConfiguration.dataSources;
               this._outputBackend = data.plotConfiguration.outputBackend;
@@ -133,14 +136,15 @@ export default {
         dataPath: splitPath[splitPath.length - 1]  // We need to do some name mangling
       };
     },
-    taskStateChanged(anyTaskIsRunning) {
-      console.log('ContactMechanicsCard.taskStateChanged ' + anyTaskIsRunning);
-      /*
-      if (!anyTaskIsRunning) {
+    taskStateChanged(nbRunningOrPending, nbSuccess, nbFailed) {
+      console.log('taskStateChanged: ' + nbRunningOrPending + '/' + nbSuccess + '/' + nbFailed + ' (was ' + this._nbRunningOrPending + '/' + this._nbSuccess + '/' + this._nbFailed + ')');
+      if (nbRunningOrPending == 0 && this._nbRunningOrPending > 0) {
           // All tasks finished, reload card
           this.updateCard();
       }
-       */
+      this._nbRunningOrPending = nbRunningOrPending;
+      this._nbSuccess = nbSuccess;
+      this._nbFailed = nbFailed;
     }
   },
   computed: {
@@ -235,7 +239,10 @@ export default {
       </div>
       <div v-if="_cardStatus == 'waiting-for-first-result'" class="tab-content">
         <span class="spinner"></span>
-        <div>Analyses are not yet available, but tasks are scheduled or running. Please wait...</div>
+        <div>
+          Analyses are not yet available, but tasks are scheduled or running.
+          Please wait...
+        </div>
       </div>
 
       <div v-if="_cardStatus != 'waiting-for-first-result' && _dataSources.length > 0" class="tab-content row">
