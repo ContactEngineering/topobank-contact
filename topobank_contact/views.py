@@ -9,18 +9,16 @@ from trackstats.models import Metric
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from topobank.manager.models import Topography
-from topobank.analysis.models import AnalysisFunction
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
-from topobank.analysis.utils import AnalysisController, round_to_significant_digits, filter_and_order_analyses, \
-    palette_for_topographies
+from topobank.analysis.utils import round_to_significant_digits, filter_and_order_analyses, palette_for_topographies
+from topobank.analysis.controller import AnalysisController
 
 
 @api_view(['POST'])
 def contact_mechanics_card_view(request):
     controller = AnalysisController.from_request(request)
 
-    print(f'{len(controller())} analyses existed.')
+    print(f'{len(controller)} analyses existed.')
 
     #
     # for statistics, count views per function
@@ -40,7 +38,7 @@ def contact_mechanics_card_view(request):
     #
     # Filter only successful ones
     #
-    analyses_success = controller(['su'], True)
+    analyses_success = controller.get(['su'], True)
 
     if len(analyses_success) > 0:
         #
