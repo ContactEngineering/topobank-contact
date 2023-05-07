@@ -30,7 +30,7 @@ export default {
         },
         functionId: Number,
         functionName: String,
-        subjects: Object,
+        subjects: String,
         txtDownloadUrl: String,
         uid: {
             type: String,
