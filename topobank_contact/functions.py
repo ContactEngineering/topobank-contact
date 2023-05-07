@@ -21,7 +21,7 @@ from topobank.manager.utils import default_storage_replace, make_dzi
 from topobank.supplib.json import ExtendedJSONEncoder
 
 APP_NAME = "topobank_contact"
-VIZ_CONTACT_MECHANICS = "contact_mechanics"
+VIZ_CONTACT_MECHANICS = "contact-mechanics"
 
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PER_DIM = 10000
