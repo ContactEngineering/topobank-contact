@@ -80,8 +80,4 @@ def contact_mechanics_card_view(request):
 
     context['limitsToFunctionKwargs'] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
 
-    context['api'] = {
-        'submitUrl': reverse('analysis:card-submit')
-    }
-
     return Response(context)

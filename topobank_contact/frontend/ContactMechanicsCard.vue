@@ -96,7 +96,6 @@ export default {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data);
                     this._analyses = data.analyses;
                     this._dois = data.dois;
                     if (this._functionKwargs === null) {
@@ -109,9 +108,6 @@ export default {
                     }
                     this._limitsToFunctionKwargs = data.limitsToFunctionKwargs;
                     this._api = data.api;
-
-                    console.log('Received functionKwargs');
-                    console.log(this._functionKwargs);
 
                     if (data.plotConfiguration !== undefined) {
                         if (this._analyses.map(a => a.task_state == 'pe' || a.task_state == 'st').some(v => v)) {
