@@ -4,13 +4,15 @@ import {v4 as uuid4} from 'uuid';
 
 import BokehPlot from 'topobank/components/BokehPlot.vue';
 import BibliographyModal from 'topobank/analysis/BibliographyModal.vue';
+import CardExpandButton from 'topobank/analysis/CardExpandButton.vue';
+import ContactMechanicsParametersModal from 'topobank_contact/ContactMechanicsParametersModal.vue';
 import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
 import TasksButton from 'topobank/analysis/TasksButton.vue';
-import ContactMechanicsParametersModal from 'topobank_contact/ContactMechanicsParametersModal.vue';
 
 export default {
     name: 'contact-mechanics-card',
     components: {
+        CardExpandButton,
         ContactMechanicsParametersModal,
         BibliographyModal,
         BokehPlot,
@@ -23,7 +25,10 @@ export default {
             default: '/plugins/topobank_contact/card/contact-mechanics'
         },
         csrfToken: String,
-        detailUrl: String,
+        detailUrl: {
+            type: String,
+            default: '/plugins/topobank_contact/html/detail/'
+        },
         enlarged: {
             type: Boolean,
             default: true
@@ -216,11 +221,12 @@ export default {
                 <button @click="updateCard" class="btn btn-default float-right ml-1">
                     <i class="fa fa-redo"></i>
                 </button>
-                <div v-if="!enlarged" class="btn-group btn-group-sm float-right">
-                    <a :href="detailUrl" class="btn btn-default float-right">
-                        <i class="fa fa-expand"></i>
-                    </a>
-                </div>
+                <card-expand-button v-if="!enlarged"
+                                    :detail-url="detailUrl"
+                                    :function-id="functionId"
+                                    :subjects="subjects"
+                                    class="btn-group btn-group-sm float-right">
+                </card-expand-button>
             </div>
             <a class="text-dark" href="#" @click="_sidebarVisible=true">
                 <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
