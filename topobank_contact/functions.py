@@ -18,9 +18,10 @@ from ContactMechanics.Factory import make_system, make_plastic_system
 from topobank.analysis.functions import IncompatibleTopographyException
 from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
-from topobank.utils import NumpyEncoder
+from topobank.supplib.json import ExtendedJSONEncoder
 
-ART_CONTACT_MECHANICS = "contact mechanics"
+APP_NAME = "topobank_contact"
+VIZ_CONTACT_MECHANICS = "contact-mechanics"
 
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PER_DIM = 10000
@@ -212,7 +213,7 @@ def _contact_at_given_load(system, external_force, history=None, pentol=None, ma
            (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
 
 
-@register_implementation(art=ART_CONTACT_MECHANICS, name="Contact mechanics")
+@register_implementation(APP_NAME, VIZ_CONTACT_MECHANICS, "Contact mechanics")
 def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, nsteps=10,
                       pressures=None, maxiter=100, progress_recorder=None, storage_prefix=None):
     """
@@ -414,7 +415,7 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         # Write to storage
         #
         default_storage_replace(f'{storage_path}/json/distributions.json',
-                                io.BytesIO(json.dumps(data_dict, cls=NumpyEncoder).encode('utf-8')))
+                                io.BytesIO(json.dumps(data_dict, cls=ExtendedJSONEncoder).encode('utf-8')))
 
         #
         # Make Deep Zoom Images of pressure, contacting points, gap and displacement
@@ -461,12 +462,5 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         mean_gaps=mean_gap[sort_order] / rms_height,
         converged=converged[sort_order],
         data_paths=data_paths[sort_order],
-        effective_kwargs=dict(
-            substrate_str=substrate_str,
-            hardness=hardness,
-            nsteps=nsteps,
-            pressures=pressures,
-            maxiter=maxiter,
-        ),
         alerts=alerts,
     )
