@@ -8,7 +8,7 @@ from ..views import contact_mechanics_card_view
 @pytest.mark.django_db
 @pytest.mark.urls('topobank_contact.tests.urls')
 @pytest.mark.parametrize('template_flavor', ['list', 'detail'])
-def test_resolve_card_view(api_rf, example_contact_analysis, template_flavor):
+def test_resolve_card_view(api_rf, example_contact_analysis, template_flavor, handle_usage_statistics):
     subjects = subjects_to_dict([example_contact_analysis.subject])
 
     request = api_rf.post('/plugins/topobank_contact/card/contact-mechanics',
