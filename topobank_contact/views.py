@@ -18,8 +18,6 @@ from topobank.analysis.controller import AnalysisController
 def contact_mechanics_card_view(request):
     controller = AnalysisController.from_request(request)
 
-    print(f'{len(controller)} analyses existed.')
-
     #
     # for statistics, count views per function
     #

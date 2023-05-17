@@ -5,7 +5,6 @@ from io import BytesIO
 from django.shortcuts import reverse
 
 from ..downloads import download_contact_mechanics_analyses_as_zip
-from ..functions import VIZ_CONTACT_MECHANICS
 
 
 @pytest.mark.urls('topobank_contact.tests.urls')
