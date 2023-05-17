@@ -8,13 +8,13 @@ from .views import contact_mechanics_card_view
 # as 'contact:example'
 app_name = APP_NAME
 urlpatterns = [
-    # POST
+    # GET
     # * Triggers analyses if not yet running
     # * Return state of analyses
     # * Return plot configuration for finished analyses
     # This is a post request because the request parameters are complex.
     path(
-        f'card/{VIZ_CONTACT_MECHANICS}',
+        f'card/{VIZ_CONTACT_MECHANICS}/<int:function_id>',
         view=login_required(contact_mechanics_card_view),
         name=f'card-{VIZ_CONTACT_MECHANICS}'
     ),

@@ -1,7 +1,6 @@
 import itertools
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import reverse
 
 from trackstats.models import Metric
@@ -14,7 +13,7 @@ from topobank.analysis.utils import round_to_significant_digits, filter_and_orde
 from topobank.analysis.controller import AnalysisController
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 def contact_mechanics_card_view(request):
     controller = AnalysisController.from_request(request)
 

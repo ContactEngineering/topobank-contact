@@ -85,19 +85,13 @@ export default {
             this._functionKwargs = functionKwargs;
 
             /* Fetch JSON describing the card */
-            fetch(this.apiUrl, {
-                method: 'POST',
+            let functionKwargsBase64 = btoa(functionKwargs);
+            fetch(`${this.apiUrl}/${this.functionId}?subjects=${this.subjects}&function_kwargs=${functionKwargsBase64}`, {
+                method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
                     'X-CSRFToken': this.csrfToken
-                },
-                body: JSON.stringify({
-                    function_id: this.functionId,
-                    subjects: this.subjects,
-                    function_kwargs: functionKwargs
-
-                })
+                }
             })
                 .then(response => response.json())
                 .then(data => {
