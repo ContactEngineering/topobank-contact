@@ -14,8 +14,8 @@ from topobank.analysis.controller import AnalysisController
 
 
 @api_view(['GET'])
-def contact_mechanics_card_view(request):
-    controller = AnalysisController.from_request(request)
+def contact_mechanics_card_view(request, **kwargs):
+    controller = AnalysisController.from_request(request, **kwargs)
 
     #
     # for statistics, count views per function
