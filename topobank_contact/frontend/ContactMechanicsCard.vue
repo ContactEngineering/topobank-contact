@@ -47,7 +47,7 @@ export default {
     },
     data() {
         return {
-            _analyses: [],
+            _analyses: null,
             _api: {},
             _cardStatus: 'mounted',  // 'mounted', 'waiting-for-first-result', 'analyses-partially-available', 'analyses-finished'
             _dois: [],
@@ -81,11 +81,12 @@ export default {
             this.updateCardWithFunctionKwargs(this._functionKwargs);
         },
         updateCardWithFunctionKwargs(functionKwargs = null) {
-            this._analyses = [];
+            this._analyses = null;
             this._functionKwargs = functionKwargs;
 
             /* Fetch JSON describing the card */
-            let functionKwargsBase64 = btoa(functionKwargs);
+            console.log(functionKwargs);
+            let functionKwargsBase64 = btoa(JSON.stringify(functionKwargs));
             fetch(`${this.apiUrl}/${this.functionId}?subjects=${this.subjects}&function_kwargs=${functionKwargsBase64}`, {
                 method: 'GET',
                 headers: {
@@ -208,12 +209,12 @@ export default {
     <div class="card search-result-card">
         <div class="card-header">
             <div class="btn-group btn-group-sm float-right">
-                <tasks-button v-if="_cardStatus != 'mounted'"
+                <tasks-button v-if="_analyses !== null && _analyses.length > 0"
                               :analyses="_analyses"
                               :csrf-token="csrfToken"
                               @task-state-changed="taskStateChanged">
                 </tasks-button>
-                <button v-if="_cardStatus != 'mounted'"
+                <button v-if="_analyses !== null && _analyses.length > 0"
                         @click="updateCard"
                         class="btn btn-default float-right ml-1">
                     <i class="fa fa-redo"></i>
@@ -225,7 +226,14 @@ export default {
                                     class="btn-group btn-group-sm float-right">
                 </card-expand-button>
             </div>
-            <a class="text-dark" href="#" @click="_sidebarVisible=true">
+            <h5 v-if="_analyses === null"
+                class="text-dark">
+                Contact mechanics
+            </h5>
+            <a v-if="_analyses !== null && _analyses.length > 0"
+               class="text-dark"
+               href="#"
+               @click="_sidebarVisible=true">
                 <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
             </a>
         </div>
@@ -247,20 +255,21 @@ export default {
                     <div class="tab-pane show active" id="plot-{{ card_id }}" role="tabpanel"
                          aria-labelledby="card-tab">
                         <bokeh-plot
-                                :plots="contactMechanicsPlots"
-                                :categories="contactMechanicsCategories"
-                                :data-sources="_dataSources"
-                                :selectable="enlarged"
-                                @selected="onSelected"
-                                :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
-                                :output-backend="_outputBackend"
-                                ref="plot">
+                            :plots="contactMechanicsPlots"
+                            :categories="contactMechanicsCategories"
+                            :data-sources="_dataSources"
+                            :selectable="enlarged"
+                            @selected="onSelected"
+                            :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
+                            :output-backend="_outputBackend"
+                            ref="plot">
                         </bokeh-plot>
                     </div>
                 </div>
 
                 <!-- Middle with group of tabs -->
-                <div v-if="enlarged" class="col-2 col-sm-2 col-md-2 col-lg-2">
+                <div v-if="enlarged"
+                     class="col-2 col-sm-2 col-md-2 col-lg-2">
 
                     <div class="nav nav-pills nav-pills-custom flex-column" aria-orientation="vertical">
                         <a class="nav-link mb-3 p-3 shadow active" data-toggle="pill" href="#contacting-points-tab"
@@ -363,17 +372,18 @@ export default {
                                 distribution, select a point in the graphs on the left!
                             </div>
                             <bokeh-plot
-                                    v-if="_selection !== null"
-                                    :plots="distributionPlots"
-                                    :data-sources="distributionDataSources"
-                                    :output-backend="_outputBackend">
+                                v-if="_selection !== null"
+                                :plots="distributionPlots"
+                                :data-sources="distributionDataSources"
+                                :output-backend="_outputBackend">
                             </bokeh-plot>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-if="_sidebarVisible" class="position-absolute h-100">
+        <div v-if="_sidebarVisible"
+             class="position-absolute h-100">
             <nav class="card-header navbar navbar-toggleable-xl bg-light flex-column align-items-start h-100">
                 <ul class="flex-column navbar-nav">
                     <a class="text-dark"
@@ -422,15 +432,15 @@ export default {
         <!-- card-header sets the margins identical to the card so the title appears at the same position -->
     </div>
     <bibliography-modal
-            :id="`bibliography-modal-${uid}`"
-            :dois="_dois">
+        :id="`bibliography-modal-${uid}`"
+        :dois="_dois">
     </bibliography-modal>
     <contact-mechanics-parameters-modal
-            v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
-            :id="`contact-mechanics-parameters-modal-${uid}`"
-            :limits-to-function-kwargs="_limitsToFunctionKwargs"
-            :function-kwargs="_functionKwargs"
-            @update-contact-kwargs="updateCardWithFunctionKwargs"
-            :csrf-token="csrfToken">
+        v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
+        :id="`contact-mechanics-parameters-modal-${uid}`"
+        :limits-to-function-kwargs="_limitsToFunctionKwargs"
+        :function-kwargs="_functionKwargs"
+        @update-contact-kwargs="updateCardWithFunctionKwargs"
+        :csrf-token="csrfToken">
     </contact-mechanics-parameters-modal>
 </template>
