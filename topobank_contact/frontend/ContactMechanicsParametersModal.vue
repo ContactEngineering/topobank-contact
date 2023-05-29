@@ -4,11 +4,11 @@ import {v4 as uuid4} from 'uuid';
 
 export default {
     name: 'contact-mechanics-parameters-modal',
+    inject: ['csrfToken'],
     emits: [
         'updateContactKwargs'
     ],
     props: {
-        csrfToken: String,
         functionKwargs: Object,
         limitsToFunctionKwargs: Object,
         uid: {
