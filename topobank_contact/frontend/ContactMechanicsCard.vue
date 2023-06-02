@@ -81,7 +81,6 @@ export default {
             this.updateCardWithFunctionKwargs(this._functionKwargs);
         },
         updateCardWithFunctionKwargs(functionKwargs = null) {
-            this._analyses = null;
             this._functionKwargs = functionKwargs;
 
             /* Fetch JSON describing the card */
