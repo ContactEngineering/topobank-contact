@@ -1,9 +1,10 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.1.0 (not yet published)
+## 1.1.0 (2023-06-11)
 
 - ENH: Unified single page application for analyses, including rewritten
   task status
+- ENH: Proper math format of axes labels
 
 ## 1.0.2 (2023-04-06)
 
