@@ -150,8 +150,8 @@ export default {
                     dataPath: "data.data_paths"
                 },
                 alphaData: "data.converged.map((value) => value ? 1.0 : 0.3)",
-                xAxisLabel: "Normalized pressure p/E*",
-                yAxisLabel: "Fractional contact area A/A0",
+                xAxisLabel: "$$p/E^*$$",
+                yAxisLabel: "$$A/A_0$$",
                 xAxisType: "log",
                 yAxisType: "log"
             }, {
@@ -162,8 +162,8 @@ export default {
                     dataPath: "data.data_paths"
                 },
                 alphaData: "data.converged.map((value) => value ? 1.0 : 0.3)",
-                xAxisLabel: "Normalized mean gap u/h_rms",
-                yAxisLabel: "Normalized pressure p/E*",
+                xAxisLabel: "$$u/h_\\text{rms}$$",
+                yAxisLabel: "$$p/E^*$$",
                 xAxisType: "linear",
                 yAxisType: "log"
             }]
@@ -176,20 +176,20 @@ export default {
                 title: "Pressure",
                 xData: "data.pressure",
                 yData: "data.pressureProbabilityDensity",
-                xAxisLabel: "Pressure p (E*)",
-                yAxisLabel: "Probability density P(p) (E*⁻¹)"
+                xAxisLabel: "$$p\\text{ (}E^*\\text{)}$$",
+                yAxisLabel: "$$P(p)\\text{ (}E^{*-1}\\text{)}$$"
             }, {
                 title: "Gap",
                 xData: "data.gap.map((value) => data.gapSIScaleFactor * value)",
                 yData: "data.gapProbabilityDensity.map((value) => data.gapProbabilityDensitySIScaleFactor * value)",
-                xAxisLabel: "Gap g (m)",
-                yAxisLabel: "Probability density P(g) (m⁻¹)"
+                xAxisLabel: "$$g\\text{ (m)}$$",
+                yAxisLabel: "$$P(g)\\text{ (m}^{-1}\\text{)}$$"
             }, {
                 title: "Cluster area",
                 xData: "data.clusterArea.map((value) => data.clusterAreaSIScaleFactor * value)",
                 yData: "data.clusterAreaProbabilityDensity.map((value) => data.clusterAreaProbabilityDensitySIScaleFactor * value)",
-                xAxisLabel: "Cluster area A (m²)",
-                yAxisLabel: "Probability density P(A) (m⁻²)"
+                xAxisLabel: "$$A\\text{ (m}^2\\text{)}$$",
+                yAxisLabel: "$$P(A)\\text{ (m}^{-2}\\text{)}$$"
             }];
         },
         distributionDataSources: function () {
