@@ -8,7 +8,6 @@ export default {
         'updateContactKwargs'
     ],
     props: {
-        csrfToken: String,
         functionKwargs: Object,
         limitsToFunctionKwargs: Object,
         uid: {
@@ -18,6 +17,7 @@ export default {
             }
         }
     },
+    inject: ['csrfToken'],
     data() {
         return {
             _enableHardness: this.functionKwargs === undefined ? false : this.functionKwargs.hardness !== null,

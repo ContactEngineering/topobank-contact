@@ -24,7 +24,6 @@ export default {
             type: String,
             default: '/plugins/topobank_contact/card/contact-mechanics'
         },
-        csrfToken: String,
         detailUrl: {
             type: String,
             default: '/analysis/html/detail/'
@@ -45,6 +44,7 @@ export default {
         },
         xlsxDownloadUrl: String
     },
+    inject: ['csrfToken'],
     data() {
         return {
             _analyses: null,
