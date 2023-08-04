@@ -1,5 +1,10 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.1.1 (2023-08-04)
+
+- BUG: Fixed viewing of contact geometries
+- MAINT: Unified CSRF injection
+
 ## 1.1.0 (2023-06-11)
 
 - ENH: Unified single page application for analyses, including rewritten
