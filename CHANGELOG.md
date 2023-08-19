@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.1.2 (not yet released)
+
+- BUG: Make sure task modal updates properly when clicking `Run calculation`
+
 ## 1.1.1 (2023-08-04)
 
 - BUG: Fixed viewing of contact geometries

@@ -82,9 +82,9 @@ export default {
         },
         updateCardWithFunctionKwargs(functionKwargs = null) {
             this._functionKwargs = functionKwargs;
+            this._analyses = null;  // Need to reset analyses, otherwise modal does not update properly
 
             /* Fetch JSON describing the card */
-            console.log(functionKwargs);
             let functionKwargsBase64 = btoa(JSON.stringify(functionKwargs));
             fetch(`${this.apiUrl}/${this.functionId}?subjects=${this.subjects}&function_kwargs=${functionKwargsBase64}`, {
                 method: 'GET',
