@@ -210,7 +210,6 @@ export default {
             <div class="btn-group btn-group-sm float-right">
                 <tasks-button v-if="_analyses !== null && _analyses.length > 0"
                               :analyses="_analyses"
-                              :csrf-token="csrfToken"
                               @task-state-changed="taskStateChanged">
                 </tasks-button>
                 <button v-if="_analyses !== null && _analyses.length > 0"
@@ -439,7 +438,6 @@ export default {
         :id="`contact-mechanics-parameters-modal-${uid}`"
         :limits-to-function-kwargs="_limitsToFunctionKwargs"
         :function-kwargs="_functionKwargs"
-        @update-contact-kwargs="updateCardWithFunctionKwargs"
-        :csrf-token="csrfToken">
+        @update-contact-kwargs="updateCardWithFunctionKwargs">
     </contact-mechanics-parameters-modal>
 </template>
