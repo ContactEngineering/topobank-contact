@@ -1,7 +1,8 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.1.2 (not yet released)
+## 1.1.2 (2023-08-21)
 
+- BUG: Fixed resubmitting contact calculations with pressure selection
 - BUG: Make sure task modal updates properly when clicking `Run calculation`
 
 ## 1.1.1 (2023-08-04)
