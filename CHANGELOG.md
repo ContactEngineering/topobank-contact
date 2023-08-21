@@ -4,6 +4,7 @@
 
 - BUG: Fixed resubmitting contact calculations with pressure selection
 - BUG: Make sure task modal updates properly when clicking `Run calculation`
+- MAINT: More fixes to CSRF injection
 
 ## 1.1.1 (2023-08-04)
 
