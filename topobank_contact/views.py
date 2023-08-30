@@ -30,7 +30,7 @@ def contact_mechanics_card_view(request, **kwargs):
     #
     # Basic context data
     #
-    context = controller.get_context(request=request)
+    context = controller.get_context()
 
     #
     # Filter only successful ones
