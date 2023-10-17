@@ -36,4 +36,7 @@ classifiers = [
 homepage = 'https://contact.engineering'
 repository = 'https://github.com/ContactEngineering/topobank-contact'
 
+[tool.setuptools]
+py-modules = ['topobank_contact']
+
 [tool.setuptools_scm]
