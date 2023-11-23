@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.2.0 (not yet released)
+
+- MAINT: Update to Bootstrap 5
+
 ## 1.1.2 (2023-08-21)
 
 - BUG: Fixed resubmitting contact calculations with pressure selection
