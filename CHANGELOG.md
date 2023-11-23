@@ -4,6 +4,17 @@
 
 - MAINT: Update to Bootstrap 5
 
+## 1.1.2 (2023-08-21)
+
+- BUG: Fixed resubmitting contact calculations with pressure selection
+- BUG: Make sure task modal updates properly when clicking `Run calculation`
+- MAINT: More fixes to CSRF injection
+
+## 1.1.1 (2023-08-04)
+
+- BUG: Fixed viewing of contact geometries
+- MAINT: Unified CSRF injection
+
 ## 1.1.0 (2023-06-11)
 
 - ENH: Unified single page application for analyses, including rewritten

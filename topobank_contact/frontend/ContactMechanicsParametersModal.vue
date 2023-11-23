@@ -18,6 +18,7 @@ export default {
             }
         }
     },
+    inject: ['csrfToken'],
     data() {
         return {
             _enableHardness: this.functionKwargs === undefined ? false : this.functionKwargs.hardness !== null,
@@ -54,7 +55,7 @@ export default {
                 if (this._pressures === null) {
                     _pressures = [1];
                 } else {
-                    _pressures = this._pressures.split(/[,;]/).map(parseFloat).filter(p => {
+                    _pressures = String(this._pressures).split(/[,;]/).map(parseFloat).filter(p => {
                         return (p != null) && (p > 0)
                     });
                 }
@@ -63,10 +64,10 @@ export default {
                 } else if (_pressures.length > this.limitsToFunctionKwargs.pressures.maxlen) {
                     _pressures.length = this.limitsToFunctionKwargs.pressures.maxlen;
                 }
-                if (this._pressures > _pressures.join()) {
+                if (String(this._pressures) !== String(_pressures)) {
                     this._recalculateWarning = true;
                 }
-                this._pressures = _pressures.join();
+                this._pressures = _pressures;
             }
 
             if (this._maxNbIter < this.limitsToFunctionKwargs.maxiter.min) {
