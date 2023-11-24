@@ -271,24 +271,24 @@ export default {
                      class="col-2 col-sm-2 col-md-2 col-lg-2">
 
                     <div class="nav nav-pills nav-pills-custom flex-column" aria-orientation="vertical">
-                        <a class="nav-link mb-3 p-3 shadow active" data-toggle="pill" href="#contacting-points-tab"
+                        <a class="nav-link mb-3 p-3 active" data-toggle="pill" href="#contacting-points-tab"
                            role="tab"
                            aria-selected="true">
                             Contact geometry
                         </a>
-                        <a class="nav-link mb-3 p-3 shadow" data-toggle="pill" href="#pressure-tab" role="tab"
+                        <a class="nav-link mb-3 p-3" data-toggle="pill" href="#pressure-tab" role="tab"
                            aria-selected="false">
                             Contact pressure
                         </a>
-                        <a class="nav-link mb-3 p-3 shadow" data-toggle="pill" href="#displacement-tab" role="tab"
+                        <a class="nav-link mb-3 p-3" data-toggle="pill" href="#displacement-tab" role="tab"
                            aria-selected="false">
                             Displacement
                         </a>
-                        <a class="nav-link mb-3 p-3 shadow" data-toggle="pill" href="#gap-tab" role="tab"
+                        <a class="nav-link mb-3 p-3" data-toggle="pill" href="#gap-tab" role="tab"
                            aria-selected="false">
                             Gap
                         </a>
-                        <a class="nav-link mb-3 p-3 shadow" data-toggle="pill" href="#distribution-function-tab"
+                        <a class="nav-link mb-3 p-3" data-toggle="pill" href="#distribution-function-tab"
                            role="tab"
                            aria-selected="false">
                             Distribution functions
