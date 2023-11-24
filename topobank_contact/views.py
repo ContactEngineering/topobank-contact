@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
-from topobank.analysis.utils import round_to_significant_digits, filter_and_order_analyses, palette_for_topographies
+from topobank.analysis.utils import round_to_significant_digits, filter_and_order_analyses
 from topobank.analysis.controller import AnalysisController
 
 
@@ -45,16 +45,9 @@ def contact_mechanics_card_view(request, **kwargs):
         data_sources_dict = []
 
         #
-        # Prepare colors to be used for different analyses
-        #
-        color_cycle = itertools.cycle(palette_for_topographies(len(analyses_success)))
-
-        #
         # Generate two plots in two tabs based on same data sources
         #
         for a_index, analysis in enumerate(analyses_success):
-            curr_color = next(color_cycle)
-
             subject_name = analysis.subject.name
 
             #
@@ -66,7 +59,6 @@ def contact_mechanics_card_view(request, **kwargs):
                 'subjectNameIndex': a_index,
                 'url': reverse('analysis:data', args=(analysis.pk, 'result.json')),
                 'showSymbols': True,  # otherwise symbols do not appear in legend
-                'color': curr_color,
                 'width': 1.
             }]
 
