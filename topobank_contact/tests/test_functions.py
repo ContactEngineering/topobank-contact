@@ -23,7 +23,7 @@ def test_contact_mechanics_whether_given_pressures_in_result(simple_linear_2d_to
     given_pressures = [2e-3, 1e-2]
     topography = FakeTopographyModel(simple_linear_2d_topography)
     result = contact_mechanics(topography,
-                               nsteps=None, pressures=given_pressures, storage_prefix='test/',
+                               nsteps=None, pressures=given_pressures, storage_prefix='test',
                                progress_recorder=DummyProgressRecorder())
 
     np.testing.assert_almost_equal(result['mean_pressures'], given_pressures)

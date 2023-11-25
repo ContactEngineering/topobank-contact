@@ -3,6 +3,7 @@ import pytest
 from topobank.manager.utils import subjects_to_base64
 
 from ..views import contact_mechanics_card_view
+from .utils import example_contact_analysis
 
 
 @pytest.mark.django_db

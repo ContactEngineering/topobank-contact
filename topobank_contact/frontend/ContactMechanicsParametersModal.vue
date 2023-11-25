@@ -4,7 +4,6 @@ import {v4 as uuid4} from 'uuid';
 
 export default {
     name: 'contact-mechanics-parameters-modal',
-    inject: ['csrfToken'],
     emits: [
         'updateContactKwargs'
     ],
@@ -18,7 +17,6 @@ export default {
             }
         }
     },
-    inject: ['csrfToken'],
     data() {
         return {
             _enableHardness: this.functionKwargs === undefined ? false : this.functionKwargs.hardness !== null,
@@ -129,10 +127,8 @@ export default {
 
                                     <div class="row">
                                         <div class="input-group col-12">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    Type
-                                                </div>
+                                            <div class="input-group-text">
+                                                Type
                                             </div>
                                             <select v-model="_periodicity" class="form-control form-select">
                                                 <option v-for="p in _periodicityOptions" :value="p.value">{{
@@ -161,13 +157,11 @@ export default {
                                     <!-- _hardness input -->
                                     <div class="row">
                                         <div class="input-group col-12">
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    Hardness
-                                                </div>
-                                                <div class="input-group-text">
-                                                    <input type="checkbox" v-model="_enableHardness">
-                                                </div>
+                                            <div class="input-group-text">
+                                                Hardness
+                                            </div>
+                                            <div class="input-group-text">
+                                                <input type="checkbox" v-model="_enableHardness">
                                             </div>
                                             <input id="_hardness-input" type="number" min="0" step="0.1"
                                                    class="form-control"
@@ -193,18 +187,16 @@ export default {
                                     <div class="row">
                                         <div class="input-group col-12">
                                             <!-- Automatic -->
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <input type="radio"
-                                                           name="pressure-selection"
-                                                           value="automatic"
-                                                           checked="checked"
-                                                           v-model="_pressureSelection"
-                                                           aria-label="Radio button for automatic step selection">
-                                                </div>
-                                                <div class="input-group-text">
-                                                    Number of steps
-                                                </div>
+                                            <div class="input-group-text">
+                                                <input type="radio"
+                                                       name="pressure-selection"
+                                                       value="automatic"
+                                                       checked="checked"
+                                                       v-model="_pressureSelection"
+                                                       aria-label="Radio button for automatic step selection">
+                                            </div>
+                                            <div class="input-group-text">
+                                                Number of steps
                                             </div>
                                             <input type="number"
                                                    :min="limitsToFunctionKwargs.nsteps.min"
@@ -227,17 +219,15 @@ export default {
                                     <div class="row">
                                         <div class="input-group col-12">
                                             <!-- Fixed list -->
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    <input type="radio"
-                                                           name="pressure-selection"
-                                                           value="manual"
-                                                           v-model="_pressureSelection"
-                                                           aria-label="Radio button for list of values">
-                                                </div>
-                                                <div class="input-group-text">
-                                                    Pressures
-                                                </div>
+                                            <div class="input-group-text">
+                                                <input type="radio"
+                                                       name="pressure-selection"
+                                                       value="manual"
+                                                       v-model="_pressureSelection"
+                                                       aria-label="Radio button for list of values">
+                                            </div>
+                                            <div class="input-group-text">
+                                                Pressures
                                             </div>
                                             <input v-model="_pressures"
                                                    class="form-control"
@@ -266,10 +256,8 @@ export default {
                                     <div class="row">
                                         <div class="input-group col-12">
                                             <!-- Automatic -->
-                                            <div class="input-group-prepend">
-                                                <div class="input-group-text">
-                                                    Max. number of iterations
-                                                </div>
+                                            <div class="input-group-text">
+                                                Max. number of iterations
                                             </div>
                                             <input id='maxiter-input' type="number"
                                                    :min="limitsToFunctionKwargs.maxiter.min"
