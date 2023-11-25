@@ -374,6 +374,7 @@ export default {
                                 v-if="_selection !== null"
                                 :plots="distributionPlots"
                                 :data-sources="distributionDataSources"
+                                :options-widgets='["layout", "lineWidth", "symbolSize"]'
                                 :output-backend="_outputBackend">
                             </bokeh-plot>
                         </div>
