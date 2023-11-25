@@ -1,6 +1,7 @@
 <script setup>
 
 import {v4 as uuid4} from 'uuid';
+import axios from "axios";
 import {computed, onMounted, ref} from "vue";
 
 import {BTab, BTabs} from "bootstrap-vue-next";
@@ -11,8 +12,6 @@ import CardExpandButton from 'topobank/analysis/CardExpandButton.vue';
 import ContactMechanicsParametersModal from 'topobank_contact/ContactMechanicsParametersModal.vue';
 import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
 import TasksButton from 'topobank/analysis/TasksButton.vue';
-import axios from "axios";
-import {data} from "jquery";
 
 const props = defineProps({
     apiUrl: {
@@ -45,25 +44,14 @@ const _api = ref({});
 const _cardStatus = ref('mounted');  // 'mounted', 'waiting-for-first-result', 'analyses-partially-available', 'analyses-finished'
 const _dois = ref([]);
 const _dataSources = ref([]);
-const _enable_hardness = ref(0);
-const _hardness = ref(undefined);
 const _functionKwargs = ref(null);
 const _limitsToFunctionKwargs = ref(null);
-const _maxNbIter = ref(100);
 const _nbFailed = ref(0);
 const _nbRunningOrPending = ref(0);
-const _nbSteps = ref(10);
 const _nbSuccess = ref(0);
 const _outputBackend = ref("svg");
-const _periodicity = ref("nonperiodic");
 const _selection = ref(null);
 const _sidebarVisible = ref(false);
-const _periodicityOptions = ref([
-    {value: "periodic", text: "Periodic (repeating array of the measurement)"},
-    {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
-]);
-const _pressureselection = ref("automatic");
-const _pressures = ref([]);
 
 onMounted(() => {
     updateCard();
