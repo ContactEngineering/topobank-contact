@@ -6,6 +6,7 @@ from .views import contact_mechanics_card_view
 # App name determines the internal name space, e.g. example can be references
 # as 'contact:example'
 app_name = APP_NAME
+urlprefix = 'plugins/contact/'
 urlpatterns = [
     # GET
     # * Triggers analyses if not yet running

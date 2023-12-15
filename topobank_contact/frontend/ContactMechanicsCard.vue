@@ -16,7 +16,7 @@ import TasksButton from 'topobank/analysis/TasksButton.vue';
 const props = defineProps({
     apiUrl: {
         type: String,
-        default: '/plugins/topobank_contact/card/contact-mechanics'
+        default: '/plugins/contact/card/contact-mechanics'
     },
     detailUrl: {
         type: String,

@@ -12,7 +12,7 @@ from .utils import example_contact_analysis
 def test_resolve_card_view(api_rf, example_contact_analysis, template_flavor, handle_usage_statistics):
     subjects = subjects_to_base64([example_contact_analysis.subject])
 
-    request = api_rf.get(f'/plugins/topobank_contact/card/contact-mechanics/{example_contact_analysis.function.id}',
+    request = api_rf.get(f'/plugins/contact/card/contact-mechanics/{example_contact_analysis.function.id}',
                          {'function_id': example_contact_analysis.function.id, 'subjects': subjects})
     request.user = example_contact_analysis.related_surfaces()[0].creator
     request.session = {}

@@ -22,7 +22,7 @@ class ContactPluginConfig(PluginConfig):
 
         """
         logo = "topobank_contact/static/images/ce_logo.svg"
-        # compatibility = "topobank>=0.92.0"
+        restricted = True  # User needs permission to access
 
     def ready(self):
         # make sure the functions are registered now
