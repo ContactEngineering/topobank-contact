@@ -1,5 +1,10 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.3.0 (not yet released)
+
+- MAINT: Update to ContactMechanics 1.2.0
+- MAINT: Cleanup of code style
+
 ## 1.2.0 (2023-11-25)
 
 - MAINT: Update to Bootstrap 5
