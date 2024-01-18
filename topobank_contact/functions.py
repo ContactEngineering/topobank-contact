@@ -13,7 +13,8 @@ from SurfaceTopography import PlasticTopography
 from SurfaceTopography.Support.UnitConversion import get_unit_conversion_factor, suggest_length_unit_for_data
 from SurfaceTopography.Uniform.GeometryAnalysis import patch_areas, assign_patch_numbers_area
 from ContactMechanics import PeriodicFFTElasticHalfSpace, FreeFFTElasticHalfSpace
-from ContactMechanics.Factory import make_system, make_plastic_system
+from ContactMechanics.PlasticSystemSpecialisations import PlasticNonSmoothContactSystem
+from ContactMechanics.Systems import NonSmoothContactSystem
 
 from topobank.analysis.functions import IncompatibleTopographyException
 from topobank.analysis.registry import register_implementation
@@ -310,9 +311,9 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
                                                   **half_space_kwargs)
 
     if (hardness is not None) and (hardness > 0):
-        system = make_plastic_system(substrate, topography)
+        system = PlasticNonSmoothContactSystem(substrate=substrate, surface=topography)
     else:
-        system = make_system(substrate, topography)
+        system = NonSmoothContactSystem(substrate=substrate, surface=topography)
 
     # Heuristics for the possible tolerance on penetration.
     # This is necessary because numbers can vary greatly
