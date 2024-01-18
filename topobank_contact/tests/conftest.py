@@ -4,6 +4,9 @@ from io import StringIO
 from topobank.analysis.models import AnalysisFunction
 from topobank.analysis.tests.utils import TopographyAnalysisFactory, simple_linear_2d_topography  # noqa: F401
 from topobank.manager.tests.utils import SurfaceFactory, Topography2DFactory
+from topobank.fixtures import api_rf, handle_usage_statistics  # noqa: F401
+from topobank.organizations.tests.utils import OrganizationFactory
+from topobank.users.tests.factories import UserFactory
 
 
 @pytest.mark.django_db
@@ -53,3 +56,13 @@ def example_contact_analysis(test_analysis_function, user_with_plugin):
 
     for fn in files_to_delete:
         default_storage.delete(fn)
+
+
+@pytest.mark.django_db
+@pytest.fixture
+def user_with_plugin():
+    org_name = "Test Organization"
+    org = OrganizationFactory(name=org_name, plugins_available="topobank_contact")
+    user = UserFactory()
+    user.groups.add(org.group)
+    return user
