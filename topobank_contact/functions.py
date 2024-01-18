@@ -427,7 +427,7 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         make_dzi(pressure_xy.data, f'{storage_path}/dzi/pressure',
                  physical_sizes=topography.physical_sizes, unit=topography.unit,
                  colorbar_title='Pressure (E*)')
-        make_dzi(contacting_points_xy.data.astype(np.int), f'{storage_path}/dzi/contacting-points',
+        make_dzi(contacting_points_xy.data.astype(int), f'{storage_path}/dzi/contacting-points',
                  physical_sizes=topography.physical_sizes, unit=topography.unit, cmap='magma')
 
         unit = suggest_length_unit_for_data('linear', gap_xy.data, topography.unit)
