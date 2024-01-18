@@ -26,7 +26,6 @@ VIZ_CONTACT_MECHANICS = "contact-mechanics"
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PER_DIM = 10000
 
-
 _log = logging.getLogger(__name__)
 
 
@@ -128,8 +127,8 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
     contacting_points_xy = force_xy > 0
 
     return displacement_xy, gap_xy, pressure_xy, contacting_points_xy, \
-           mean_displacement, mean_load, total_contact_area, \
-           (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
+        mean_displacement, mean_load, total_contact_area, \
+        (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
 
 
 def _contact_at_given_load(system, external_force, history=None, pentol=None, maxiter=None):
@@ -209,8 +208,8 @@ def _contact_at_given_load(system, external_force, history=None, pentol=None, ma
     contacting_points_xy = force_xy > 0
 
     return displacement_xy, gap_xy, pressure_xy, contacting_points_xy, \
-           opt.offset, mean_load, total_contact_area, \
-           (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
+        opt.offset, mean_load, total_contact_area, \
+        (mean_displacements, mean_gaps, mean_pressures, total_contact_areas, converged)
 
 
 @register_implementation(APP_NAME, VIZ_CONTACT_MECHANICS, "Contact mechanics")
@@ -220,10 +219,12 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
     Note that `loads` is a list of pressures if the substrate is periodic and a list of forces otherwise.
 
     :param topography:
-    :param substrate_str: one of ['periodic', 'nonperiodic', None ]; if None, choose from topography's 'is_periodic' flag
+    :param substrate_str: one of ['periodic', 'nonperiodic', None ]; if None, choose from topography's 'is_periodic'
+        flag
     :param hardness: float value (unit: E*)
     :param nsteps: int or None, if None, "loads" must be given a list
-    :param pressures: list of floats or None, if None, choose pressures automatically by using given number of steps (nsteps)
+    :param pressures: list of floats or None, if None, choose pressures automatically by using given number of steps
+        (nsteps)
     :param maxiter: int, maximum number of iterations unless convergence
     :param progress_recorder:
     :param storage_prefix:
@@ -241,7 +242,7 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
             alert_message += "periodic, but the analysis is configured for free boundaries."
         else:
             alert_message += "not periodic, but the analysis is configured for periodic boundaries."
-        alerts.append(dict(alert_class=f"alert-warning", message=alert_message))
+        alerts.append(dict(alert_class="alert-warning", message=alert_message))
         _log.warning(alert_message + " The user should have been informed in the UI.")
 
     # Get low level topography from SurfaceTopography model
@@ -331,11 +332,11 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
     for i in range(nsteps):
         if pressures is None:
             displacement_xy, gap_xy, pressure_xy, contacting_points_xy, \
-            mean_displacement, mean_pressure, total_contact_area, history = \
+                mean_displacement, mean_pressure, total_contact_area, history = \
                 _next_contact_step(system, history=history, pentol=pentol, maxiter=maxiter)
         else:
             displacement_xy, gap_xy, pressure_xy, contacting_points_xy, \
-            mean_displacement, mean_pressure, total_contact_area, history = \
+                mean_displacement, mean_pressure, total_contact_area, history = \
                 _contact_at_given_load(system, pressures[i] * force_conv, history=history, pentol=pentol,
                                        maxiter=maxiter)
 
@@ -348,10 +349,11 @@ def contact_mechanics(topography, substrate_str="nonperiodic", hardness=None, ns
         displacement_xy = xr.DataArray(displacement_xy, dims=('x', 'y'))
         contacting_points_xy = xr.DataArray(contacting_points_xy, dims=('x', 'y'))
 
+        # one dataset per analysis step: smallest unit to retrieve
         dataset = xr.Dataset({'pressure': pressure_xy,
                               'contacting_points': contacting_points_xy,
                               'gap': gap_xy,
-                              'displacement': displacement_xy})  # one dataset per analysis step: smallest unit to retrieve
+                              'displacement': displacement_xy})
         dataset.attrs['mean_pressure'] = mean_pressure
         dataset.attrs['total_contact_area'] = total_contact_area
         dataset.attrs['type'] = substrate_str

@@ -2,7 +2,7 @@ import pytest
 from io import StringIO
 
 from topobank.analysis.models import AnalysisFunction
-from topobank.analysis.tests.utils import TopographyAnalysisFactory
+from topobank.analysis.tests.utils import TopographyAnalysisFactory, simple_linear_2d_topography  # noqa: F401
 from topobank.manager.tests.utils import SurfaceFactory, Topography2DFactory
 
 
@@ -53,8 +53,3 @@ def example_contact_analysis(test_analysis_function, user_with_plugin):
 
     for fn in files_to_delete:
         default_storage.delete(fn)
-
-
-
-
-

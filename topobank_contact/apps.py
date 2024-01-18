@@ -29,8 +29,8 @@ class ContactPluginConfig(PluginConfig):
         # make sure the functions are registered now
 
         # noinspection PyUnresolvedReferences
-        import topobank_contact.functions
+        import topobank_contact.functions  # noqa: F401
         # noinspection PyUnresolvedReferences
-        import topobank_contact.views
+        import topobank_contact.views  # noqa: F401
         # noinspection PyUnresolvedReferences
-        import topobank_contact.downloads
+        import topobank_contact.downloads  # noqa: F401
