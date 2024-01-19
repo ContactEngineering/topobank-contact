@@ -110,8 +110,8 @@ export default {
                         :id="`contact-mechanics-parameters-modal-label-${uid}`">
                         Contact mechanics
                     </h5>
-                    <button ref="close" class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
+                    <button ref="close" class="btn-close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"></span>
                     </button>
                 </div>
 
