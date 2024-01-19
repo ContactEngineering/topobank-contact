@@ -1,10 +1,11 @@
-from importlib.metadata import version
-__version__ = version("topobank-contact")
+import importlib.metadata
+
+from topobank.plugins import PluginConfig
 
 try:
-    from topobank.plugins import PluginConfig
-except ImportError:
-    raise RuntimeError("Please use topobank 0.92.0 or above to use this plugin!")
+    __version__ = importlib.metadata.version('topobank-contact')
+except importlib.metadata.PackageNotFoundError:
+    __version__ = 'N/A (package metadata not found)'
 
 
 class ContactPluginConfig(PluginConfig):
@@ -28,9 +29,8 @@ class ContactPluginConfig(PluginConfig):
         # make sure the functions are registered now
 
         # noinspection PyUnresolvedReferences
-        import topobank_contact.functions
+        import topobank_contact.functions  # noqa: F401
         # noinspection PyUnresolvedReferences
-        import topobank_contact.views
+        import topobank_contact.views  # noqa: F401
         # noinspection PyUnresolvedReferences
-        import topobank_contact.downloads
-
+        import topobank_contact.downloads  # noqa: F401

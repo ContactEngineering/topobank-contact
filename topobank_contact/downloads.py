@@ -79,12 +79,11 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
         zf.writestr(os.path.join(zip_dir, 'info.txt'),
                     analysis_header_for_txt_file(analysis, dois=True))
 
-
     #
     # Add a Readme file
     #
     zf.writestr("README.txt",
-                f"""
+                """
 Contents of this ZIP archive
 ============================
 This archive contains data from contact mechanics calculation.
@@ -99,8 +98,8 @@ The file 'plot.csv' contains a table with the data used in the plot,
 one line for each calculation step. It has the following columns:
 
 - Zero-based index column
-- Normalized mean pressure in units of p/E*. 
-  The mean pressure is the total force divided by the nominal area of contact A0. 
+- Normalized mean pressure in units of p/E*.
+  The mean pressure is the total force divided by the nominal area of contact A0.
 - Fractional contact area in units of A/A0
 - Normalized mean gap in units of u/h_rms
 - A boolean flag (True/False) which indicates whether the calculation converged

@@ -1,5 +1,3 @@
-import itertools
-
 from django.conf import settings
 from django.shortcuts import reverse
 
@@ -9,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
-from topobank.analysis.utils import round_to_significant_digits, filter_and_order_analyses
+from topobank.analysis.utils import filter_and_order_analyses
 from topobank.analysis.controller import AnalysisController
 
 
