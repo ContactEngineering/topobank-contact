@@ -1,9 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.3.0 (not yet released)
+## 1.3.0 (2024-01-20)
 
-- MAINT: Update to ContactMechanics 1.2.0
-- MAINT: Cleanup of code style
+- MAINT: Update to ContactMechanics 1.12.2
+- MAINT: Enforcing PEP-8 style
 
 ## 1.2.0 (2023-11-25)
 
