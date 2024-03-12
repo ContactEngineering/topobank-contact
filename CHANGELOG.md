@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.2.2 (2024-03-12)
+
+- MAINT: Compatibility with topobank 1.7.0
+
 ## 1.2.1 (2024-01-20)
 
 - MAINT: Update to ContactMechanics 1.12.2
