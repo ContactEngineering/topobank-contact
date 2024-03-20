@@ -1,5 +1,7 @@
 from topobank.plugins import PluginConfig
 
+from .version import __version__
+
 
 class ContactPluginConfig(PluginConfig):
     default = True
