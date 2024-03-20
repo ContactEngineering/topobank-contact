@@ -1,11 +1,4 @@
-import importlib.metadata
-
 from topobank.plugins import PluginConfig
-
-try:
-    __version__ = importlib.metadata.version('topobank-contact')
-except importlib.metadata.PackageNotFoundError:
-    __version__ = 'N/A (package metadata not found)'
 
 
 class ContactPluginConfig(PluginConfig):
