@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = 'topobank-contact'
-description = 'This is a plugin for "topobank" for contact analysis of measurements.'
+description = 'Boundary-element method for "topobank"'
 requires-python = '>=3.8.0'
 dynamic = ['version']
 readme = 'README.rst'
