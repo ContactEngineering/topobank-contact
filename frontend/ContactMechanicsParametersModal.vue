@@ -1,5 +1,7 @@
 <script setup>
 
+import {ref} from "vue";
+
 import {BModal} from "bootstrap-vue-next";
 
 const visible = defineModel('visible', {required: true});
@@ -7,7 +9,7 @@ const kwargs = defineModel('kwargs', {required: true});
 
 const emit = defineEmits(['updateKwargs']);
 
-const props = definedProps({
+const props = defineProps({
     limitsToFunctionKwargs: Object,
 });
 
