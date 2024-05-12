@@ -52,15 +52,8 @@ onMounted(() => {
 });
 
 function updateCard() {
-    updateCardWithFunctionKwargs(_functionKwargs.value);
-}
-
-function updateCardWithFunctionKwargs(functionKwargs = null) {
-    _functionKwargs.value = functionKwargs;
-    _analyses.value = null;  // Need to reset analyses, otherwise modal does not update properly
-
     /* Fetch JSON describing the card */
-    let functionKwargsBase64 = btoa(JSON.stringify(functionKwargs));
+    let functionKwargsBase64 = btoa(JSON.stringify(_functionKwargs.value));
     axios.get(`${props.apiUrl}/${props.functionId}?subjects=${props.subjects}&function_kwargs=${functionKwargsBase64}`)
         .then(response => {
             _analyses.value = response.data.analyses;
@@ -295,6 +288,6 @@ const analysisIds = computed(() => {
                                      v-model:visible="_parametersVisible"
                                      v-model:kwargs="_functionKwargs"
                                      :limits-to-function-kwargs="_limitsToFunctionKwargs"
-                                     @updateKwargs="updateCardWithFunctionKwargs">
+                                     @updateKwargs="updateCard">
     </ContactMechanicsParametersModal>
 </template>

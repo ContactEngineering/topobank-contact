@@ -2,7 +2,17 @@
 
 import {ref} from "vue";
 
-import {BModal} from "bootstrap-vue-next";
+import {
+    BForm,
+    BFormCheckbox,
+    BFormInput,
+    BFormRadio,
+    BFormSelect,
+    BFormSelectOption,
+    BInputGroup,
+    BInputGroupText,
+    BModal
+} from "bootstrap-vue-next";
 
 const visible = defineModel('visible', {required: true});
 const kwargs = defineModel('kwargs', {required: true});
@@ -73,13 +83,13 @@ function validateParameters(event) {
         return;
     }
 
-    _kwargs.value.substrate_str = _periodicity.value;
-    _kwargs.value.hardness = _enableHardness.value ? parseFloat(_hardness.value) : null;
-    _kwargs.value.nsteps = _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null;
-    _kwargs.value.pressures = _pressureSelection.value == "manual" ? _pressures.value : null;
-    _kwargs.value.maxiter = parseInt(_maxNbIter.value);
+    kwargs.value.substrate_str = _periodicity.value;
+    kwargs.value.hardness = _enableHardness.value ? parseFloat(_hardness.value) : null;
+    kwargs.value.nsteps = _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null;
+    kwargs.value.pressures = _pressureSelection.value == "manual" ? _pressures.value : null;
+    kwargs.value.maxiter = parseInt(_maxNbIter.value);
 
-    emit('updateKwargs', kwargs);
+    emit('updateKwargs', kwargs.value);
 }
 
 </script>
@@ -89,181 +99,136 @@ function validateParameters(event) {
             size="xl"
             title="Contact mechanics"
             @ok="validateParameters">
-        <!-- ELEMENTS FOR TRIGGERING A CALCULATION -->
-        <div class="row p-3">
-            <div class="col-12">
-
-                <form>
-                    <div class="form-group">
-
-                        <!-- Substrate selection -->
-
-                        <div class="row">
-                            <div class="input-group col-12">
-                                <div class="input-group-text">
-                                    Type
-                                </div>
-                                <select v-model="_periodicity" class="form-control form-select">
-                                    <option v-for="p in _periodicityOptions" :value="p.value">{{
-                                            p.text
-                                        }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <small>
-                                    This option determines how the elastic interactions are calculated. This
-                                    affects edge effects
-                                    that may show up in the results at large contact area. Calculations can
-                                    assume that the surface
-                                    repeats periodically or that it is pushing down on a nonperiodic,
-                                    infinitely expanded
-                                    half-space.
-                                    The latter option corresponds to mapping the surface topography on a
-                                    flat punch.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- _hardness input -->
-                        <div class="row">
-                            <div class="input-group col-12">
-                                <div class="input-group-text">
-                                    Hardness
-                                </div>
-                                <div class="input-group-text">
-                                    <input type="checkbox" v-model="_enableHardness">
-                                </div>
-                                <input id="_hardness-input" type="number" min="0" step="0.1"
-                                       class="form-control"
-                                       v-model="_hardness" :disabled="!_enableHardness">
-                                <div class="input-group-append ">
-                                    <div class="input-group-text">
-                                        E<sup>*</sup>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <small>
-                                    Setting a hardness enables plastic calculations. Local pressure cannot
-                                    exceed the hardness
-                                    value.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Step selection -->
-                        <div class="row">
-                            <div class="input-group col-12">
-                                <!-- Automatic -->
-                                <div class="input-group-text">
-                                    <input type="radio"
-                                           name="pressure-selection"
-                                           value="automatic"
-                                           checked="checked"
-                                           v-model="_pressureSelection"
-                                           aria-label="Radio button for automatic step selection">
-                                </div>
-                                <div class="input-group-text">
-                                    Number of steps
-                                </div>
-                                <input type="number"
-                                       :min="limitsToFunctionKwargs.nsteps.min"
-                                       :max="limitsToFunctionKwargs.nsteps.max"
-                                       step="1" class="form-control"
-                                       v-model="_nbSteps"
-                                       :disabled="_pressureSelection != 'automatic'">
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <small>
-                                    Select this option to run a fully automatic calculation. External
-                                    pressures are selected such
-                                    that contact area vs. pressure is approximately equally spaced on a
-                                    log-log plot.
-                                </small>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-group col-12">
-                                <!-- Fixed list -->
-                                <div class="input-group-text">
-                                    <input type="radio"
-                                           name="pressure-selection"
-                                           value="manual"
-                                           v-model="_pressureSelection"
-                                           aria-label="Radio button for list of values">
-                                </div>
-                                <div class="input-group-text">
-                                    Pressures
-                                </div>
-                                <input v-model="_pressures"
-                                       class="form-control"
-                                       :disabled="_pressureSelection != 'manual'">
-                                <div class="input-group-append">
-                                    <div class="input-group-text">
-                                        E<sup>*</sup>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <small>
-                                    Enter positive pressure values for which you need results. You can also
-                                    copy/paste a
-                                    comma-separated list of values with a comma after every number. Use dot
-                                    as decimal separator.
-                                    The maximum number of values is
-                                    {{ limitsToFunctionKwargs.pressures.maxlen }}.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Input of maximum number of iterations -->
-                        <div class="row">
-                            <div class="input-group col-12">
-                                <!-- Automatic -->
-                                <div class="input-group-text">
-                                    Max. number of iterations
-                                </div>
-                                <input id='maxiter-input' type="number"
-                                       :min="limitsToFunctionKwargs.maxiter.min"
-                                       :max="limitsToFunctionKwargs.maxiter.max"
-                                       step="100" class="form-control"
-                                       v-model="_maxNbIter">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <small>
-                                    The calculation will stop if converged or after this maximum number of
-                                    iterations. Data points
-                                    that are not converged are shown translucent in the resulting plots. The
-                                    maximum number of
-                                    iterations is limited to {{ limitsToFunctionKwargs.maxiter.max }}.
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-
-                <div class="alert alert-warning" v-if="_recalculateWarning">
-                    Some of the input parameters were invalid. We have updated those parameters for you.
-                    Please double-check
-                    the parameters and click <b>Run calculation</b> when ready.
+        <!-- Substrate selection -->
+        <BForm>
+            <BInputGroup prepend="Type">
+                <BFormSelect v-model="_periodicity">
+                    <BFormSelectOption v-for="p in _periodicityOptions" :value="p.value">
+                        {{ p.text }}
+                    </BFormSelectOption>
+                </BFormSelect>
+            </BInputGroup>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small>
+                        This option determines how the elastic interactions are calculated. This
+                        affects edge effects
+                        that may show up in the results at large contact area. Calculations can
+                        assume that the surface
+                        repeats periodically or that it is pushing down on a nonperiodic,
+                        infinitely expanded
+                        half-space.
+                        The latter option corresponds to mapping the surface topography on a
+                        flat punch.
+                    </small>
                 </div>
-                <button title="Trigger calculation with given arguments"
-                        class="btn btn-primary btn-block btn-lg"
-                        v-on:click="runCalculation">
-                    Run calculation
-                </button>
             </div>
-        </div>
+
+            <!-- _hardness input -->
+            <BInputGroup prepend="Hardness" append-html="E<sup>*</sup>">
+                <BInputGroupText>
+                    <BFormCheckbox v-model="_enableHardness"></BFormCheckbox>
+                </BInputGroupText>
+                <BFormInput type="number" min="0" step="0.1"
+                            v-model="_hardness" :disabled="!_enableHardness">
+                </BFormInput>
+            </BInputGroup>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small>
+                        Setting a hardness enables plastic calculations. Local pressure cannot
+                        exceed the hardness
+                        value.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Step selection -->
+            <!-- Automatic -->
+            <BInputGroup>
+                <BInputGroupText>
+                    <BFormRadio value="automatic"
+                                checked="checked"
+                                v-model="_pressureSelection"></BFormRadio>
+                </BInputGroupText>
+                <BInputGroupText>
+                    Number of steps
+                </BInputGroupText>
+                <BFormInput type="number"
+                            :min="limitsToFunctionKwargs.nsteps.min"
+                            :max="limitsToFunctionKwargs.nsteps.max"
+                            step="1"
+                            v-model="_nbSteps"
+                            :disabled="_pressureSelection != 'automatic'">
+                </BFormInput>
+            </BInputGroup>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small>
+                        Select this option to run a fully automatic calculation. External
+                        pressures are selected such
+                        that contact area vs. pressure is approximately equally spaced on a
+                        log-log plot.
+                    </small>
+                </div>
+            </div>
+            <BInputGroup appendHtml="E<sup>*</sup>">
+                <!-- Fixed list -->
+                <BInputGroupText>
+                    <BFormRadio value="manual"
+                                v-model="_pressureSelection">
+                    </BFormRadio>
+                </BInputGroupText>
+                <BInputGroupText>
+                    Pressures
+                </BInputGroupText>
+                <BFormInput v-model="_pressures"
+                            :disabled="_pressureSelection != 'manual'">
+                </BFormInput>
+            </BInputGroup>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <small>
+                        Enter positive pressure values for which you need results. You can also
+                        copy/paste a
+                        comma-separated list of values with a comma after every number. Use dot
+                        as decimal separator.
+                        The maximum number of values is
+                        {{ limitsToFunctionKwargs.pressures.maxlen }}.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Input of maximum number of iterations -->
+            <BInputGroup>
+                <!-- Automatic -->
+                <BInputGroupText>
+                    Max. number of iterations
+                </BInputGroupText>
+                <BFormInput type="number"
+                            :min="limitsToFunctionKwargs.maxiter.min"
+                            :max="limitsToFunctionKwargs.maxiter.max"
+                            step="100" class="form-control"
+                            v-model="_maxNbIter">
+                </BFormInput>
+            </BInputGroup>
+            <div class="row">
+                <div class="col-12">
+                    <small>
+                        The calculation will stop if converged or after this maximum number of
+                        iterations. Data points
+                        that are not converged are shown translucent in the resulting plots. The
+                        maximum number of
+                        iterations is limited to {{ limitsToFunctionKwargs.maxiter.max }}.
+                    </small>
+                </div>
+            </div>
+
+            <div class="alert alert-warning" v-if="_recalculateWarning">
+                Some of the input parameters were invalid. We have updated those parameters for you.
+                Please double-check
+                the parameters and click <b>Run calculation</b> when ready.
+            </div>
+        </BForm>
     </BModal>
 </template>
