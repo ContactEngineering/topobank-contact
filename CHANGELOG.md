@@ -1,7 +1,8 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.2.5 (2024-05-12)
+## 1.3.0 (2024-05-12)
 
+- ENH: Use new `AnalysisCard` component
 - MAINT: Updated code to use bootstrap-vue-next components throughout
 - MAINT: Update to ContactMechanics 1.2.5
 
