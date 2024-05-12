@@ -1,17 +1,14 @@
 <script setup>
 
-import {v4 as uuid4} from 'uuid';
 import axios from "axios";
 import {computed, onMounted, ref} from "vue";
 
-import {BTab, BTabs} from "bootstrap-vue-next";
+import {BDropdownDivider, BDropdownItem, BTab, BTabs} from "bootstrap-vue-next";
 
 import BokehPlot from 'topobank/components/BokehPlot.vue';
-import BibliographyModal from 'topobank/analysis/BibliographyModal.vue';
-import CardExpandButton from 'topobank/analysis/CardExpandButton.vue';
 import ContactMechanicsParametersModal from 'topobank_contact/ContactMechanicsParametersModal.vue';
 import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
-import TasksButton from 'topobank/analysis/TasksButton.vue';
+import AnalysisCard from "topobank/analysis/AnalysisCard.vue";
 
 const props = defineProps({
     apiUrl: {
@@ -30,12 +27,6 @@ const props = defineProps({
     functionName: String,
     subjects: String,
     txtDownloadUrl: String,
-    uid: {
-        type: String,
-        default() {
-            return uuid4();
-        }
-    },
     xlsxDownloadUrl: String
 });
 
@@ -51,22 +42,18 @@ const _nbRunningOrPending = ref(0);
 const _nbSuccess = ref(0);
 const _outputBackend = ref("svg");
 const _selection = ref(null);
-const _sidebarVisible = ref(false);
+
+// GUI logic
+const _nbPendingAjaxRequests = ref(0);
+const _parametersVisible = ref(false);
 
 onMounted(() => {
     updateCard();
 });
 
 function updateCard() {
-    updateCardWithFunctionKwargs(_functionKwargs.value);
-}
-
-function updateCardWithFunctionKwargs(functionKwargs = null) {
-    _functionKwargs.value = functionKwargs;
-    _analyses.value = null;  // Need to reset analyses, otherwise modal does not update properly
-
     /* Fetch JSON describing the card */
-    let functionKwargsBase64 = btoa(JSON.stringify(functionKwargs));
+    let functionKwargsBase64 = btoa(JSON.stringify(_functionKwargs.value));
     axios.get(`${props.apiUrl}/${props.functionId}?subjects=${props.subjects}&function_kwargs=${functionKwargsBase64}`)
         .then(response => {
             _analyses.value = response.data.analyses;
@@ -119,24 +106,26 @@ function taskStateChanged(nbRunningOrPending, nbSuccess, nbFailed) {
 const contactMechanicsPlots = computed(() => {
     return [{
         title: "Contact area vs load",
-        xData: "data.mean_pressures",
-        yData: "data.total_contact_areas",
+        xData: "mean_pressures",
+        yData: "total_contact_areas",
         auxiliaryDataColumns: {
-            dataPath: "data.data_paths"
+            dataPath: "data_paths"
         },
-        alphaData: "data.converged.map((value) => value ? 1.0 : 0.3)",
+        alphaData: "converged",
+        alphaDataMap: (value) => value ? 1.0 : 0.3,
         xAxisLabel: "$$p/E^*$$",
         yAxisLabel: "$$A/A_0$$",
         xAxisType: "log",
         yAxisType: "log"
     }, {
         title: "Load vs displacement",
-        xData: "data.mean_gaps",
-        yData: "data.mean_pressures",
+        xData: "mean_gaps",
+        yData: "mean_pressures",
         auxiliaryDataColumns: {
-            dataPath: "data.data_paths"
+            dataPath: "data_paths"
         },
-        alphaData: "data.converged.map((value) => value ? 1.0 : 0.3)",
+        alphaData: "converged",
+        alphaDataMap: (value) => value ? 1.0 : 0.3,
         xAxisLabel: "$$u/h_\\text{rms}$$",
         yAxisLabel: "$$p/E^*$$",
         xAxisType: "linear",
@@ -151,20 +140,24 @@ const contactMechanicsCategories = computed(() => {
 const distributionPlots = computed(() => {
     return [{
         title: "Pressure",
-        xData: "data.pressure",
-        yData: "data.pressureProbabilityDensity",
+        xData: "pressure",
+        yData: "pressureProbabilityDensity",
         xAxisLabel: "$$p\\text{ (}E^*\\text{)}$$",
         yAxisLabel: "$$P(p)\\text{ (}E^{*-1}\\text{)}$$"
     }, {
         title: "Gap",
-        xData: "data.gap.map((value) => data.gapSIScaleFactor * value)",
-        yData: "data.gapProbabilityDensity.map((value) => data.gapProbabilityDensitySIScaleFactor * value)",
+        xData: "gap",
+        xDataMap: (value) => gapSIScaleFactor * value,
+        yData: "gapProbabilityDensity",
+        yDataMap: (value) => gapProbabilityDensitySIScaleFactor * value,
         xAxisLabel: "$$g\\text{ (m)}$$",
         yAxisLabel: "$$P(g)\\text{ (m}^{-1}\\text{)}$$"
     }, {
         title: "Cluster area",
-        xData: "data.clusterArea.map((value) => data.clusterAreaSIScaleFactor * value)",
-        yData: "data.clusterAreaProbabilityDensity.map((value) => data.clusterAreaProbabilityDensitySIScaleFactor * value)",
+        xData: "clusterArea",
+        xDataMap: (value) => clusterAreaSIScaleFactor * value,
+        yData: "clusterAreaProbabilityDensity",
+        yDataMap: (value) => clusterAreaProbabilityDensitySIScaleFactor * value,
         xAxisLabel: "$$A\\text{ (m}^2\\text{)}$$",
         yAxisLabel: "$$P(A)\\text{ (m}^{-2}\\text{)}$$"
     }];
@@ -177,202 +170,124 @@ const distributionDataSources = computed(() => {
 });
 
 const analysisIds = computed(() => {
+    if (_analyses.value == null) {
+        return [];
+    }
     return _analyses.value.map(a => a.id).join();
 });
 
 </script>
 
 <template>
-    <div class="card search-result-card">
-        <div class="card-header">
-            <div class="btn-group btn-group-sm float-end">
-                <tasks-button v-if="_analyses !== null && _analyses.length > 0"
-                              :analyses="_analyses"
-                              @task-state-changed="taskStateChanged">
-                </tasks-button>
-                <button v-if="_analyses !== null && _analyses.length > 0"
-                        @click="updateCard"
-                        class="btn btn-default float-end ms-1">
-                    <i class="fa fa-redo"></i>
-                </button>
-                <card-expand-button v-if="!enlarged"
-                                    :detail-url="detailUrl"
-                                    :function-id="functionId"
-                                    :subjects="subjects"
-                                    class="btn-group btn-group-sm float-end">
-                </card-expand-button>
-            </div>
-            <h5 v-if="_analyses === null"
-                class="text-dark">
-                Contact mechanics
-            </h5>
-            <a v-if="_analyses !== null && _analyses.length > 0"
-               class="text-dark text-decoration-none"
-               href="#"
-               @click="_sidebarVisible=true">
-                <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
-            </a>
-        </div>
-        <div class="card-body">
-            <div v-if="_cardStatus === 'mounted'" class="tab-content">
-                <span class="spinner"></span>
-                <div>Please wait...</div>
-            </div>
-            <div v-if="_cardStatus === 'waiting-for-first-result'" class="tab-content">
-                <span class="spinner"></span>
-                <div>
-                    Analyses are not yet available, but tasks are scheduled or running.
-                    Please wait...
-                </div>
+    <AnalysisCard v-model:analyses="_analyses"
+                  :detailUrl="detailUrl"
+                  :dois="_dois"
+                  :enlarged="enlarged"
+                  :functionId="functionId"
+                  :subjects="subjects"
+                  :showLoadingSpinner="_nbPendingAjaxRequests > 0"
+                  title="Contact mechanics"
+                  @allTasksFinished="updateCard"
+                  @someTasksFinished="updateCard"
+                  @refreshButtonClicked="updateCard">
+        <template #dropdowns>
+            <BDropdownDivider></BDropdownDivider>
+            <BDropdownItem @click="_parametersVisible = true">
+                Parameters...
+            </BDropdownItem>
+            <BDropdownDivider></BDropdownDivider>
+            <BDropdownItem :href="`/analysis/download/${analysisIds}/zip`">
+                Download ZIP
+            </BDropdownItem>
+            <BDropdownItem @click="$refs.plot.download()">
+                Download SVG
+            </BDropdownItem>
+        </template>
+        <div class="row">
+            <div :class="{ 'col-6': enlarged, 'col-12': !enlarged }">
+                <BokehPlot
+                    :plots="contactMechanicsPlots"
+                    :categories="contactMechanicsCategories"
+                    :data-sources="_dataSources"
+                    :selectable="enlarged"
+                    @selected="onSelected"
+                    :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
+                    :output-backend="_outputBackend"
+                    ref="plot">
+                </BokehPlot>
             </div>
 
-            <div v-if="_cardStatus !== 'waiting-for-first-result' && _dataSources.length > 0" class="tab-content row">
-                <div :class="{ 'col-sm-5': enlarged, 'col-sm-12': !enlarged }">
-                    <div class="tab-pane show active" id="plot-{{ card_id }}" role="tabpanel"
-                         aria-labelledby="card-tab">
-                        <bokeh-plot
-                            :plots="contactMechanicsPlots"
-                            :categories="contactMechanicsCategories"
-                            :data-sources="_dataSources"
-                            :selectable="enlarged"
-                            @selected="onSelected"
-                            :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
-                            :output-backend="_outputBackend"
-                            ref="plot">
-                        </bokeh-plot>
-                    </div>
+            <!-- Right with simulation details and actions -->
+            <div v-if="enlarged" class="col-6">
+                <div v-if="_selection == null" id="geometry" class="alert alert-info">Select a point
+                    in the graphs on the left for more details.
                 </div>
-
-                <!-- Right with simulation details and actions -->
-                <div v-if="enlarged" class="col-sm-7">
-                    <div v-if="_selection == null" id="geometry" class="alert alert-info">Select a point
-                        in the graphs on the left for more details.
-                    </div>
-                    <b-tabs v-if="_selection != null"
-                            class="nav-pills-custom"
-                            content-class="w-100"
-                            fill
-                            pills
-                            vertical>
-                        <b-tab title="Contact geometry">
-                            <deep-zoom-image v-if="_selection != null"
-                                             :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/contacting-points/`"
-                                             ref="contactingPoints">
-                            </deep-zoom-image>
-                            <div v-if="_selection != null" class="pull-right">
-                                <a class="btn btn-default btn-block btn-lg mt-3"
-                                   v-on:click="$refs.contactingPoints.download()">
-                                    Download PNG
-                                </a>
-                            </div>
-                        </b-tab>
-                        <b-tab title="Contact pressure">
-                            <deep-zoom-image v-if="_selection != null"
-                                             :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/pressure/`"
-                                             :colorbar="true"
-                                             ref="pressure">
-                            </deep-zoom-image>
-                            <div v-if="_selection != null" class="pull-right">
-                                <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.pressure.download()">
-                                    Download PNG
-                                </a>
-                            </div>
-                        </b-tab>
-                        <b-tab title="Displacement">
-                            <deep-zoom-image v-if="_selection != null"
-                                             :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/displacement/`"
-                                             :colorbar="true"
-                                             ref="displacement">
-                            </deep-zoom-image>
-                            <div v-if="_selection != null" class="pull-right">
-                                <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.displacement.download()">
-                                    Download PNG
-                                </a>
-                            </div>
-                        </b-tab>
-                        <b-tab title="Gap">
-                            <deep-zoom-image v-if="_selection != null"
-                                             :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/gap/`"
-                                             :colorbar="true"
-                                             ref="gap">
-                            </deep-zoom-image>
-                            <div v-if="_selection != null" class="pull-right">
-                                <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.gap.download()">
-                                    Download PNG
-                                </a>
-                            </div>
-                        </b-tab>
-                        <b-tab title="Distribution functions">
-                            <bokeh-plot
-                                v-if="_selection != null"
-                                :plots="distributionPlots"
-                                :data-sources="distributionDataSources"
-                                :options-widgets='["layout", "lineWidth", "symbolSize"]'
-                                :output-backend="_outputBackend">
-                            </bokeh-plot>
-                        </b-tab>
-                    </b-tabs>
-                </div>
-            </div>
-        </div>
-        <div v-if="_sidebarVisible"
-             class="position-absolute h-100">
-            <nav class="card-header navbar navbar-toggleable-xl bg-light flex-column align-items-start h-100">
-                <ul class="flex-column navbar-nav">
-                    <a class="text-dark text-decoration-none"
-                       href="#"
-                       @click="_sidebarVisible=false">
-                        <h5><i class="fa fa-bars"></i> Contact mechanics</h5>
-                    </a>
-                    <li class="nav-item mb-1 mt-1">
-                        Download
-                        <div class="btn-group ms-1"
-                             role="group"
-                             aria-label="Download formats">
-                            <a class="btn btn-default"
-                               :href="`/analysis/download/${analysisIds}/zip`"
-                               @click="_sidebarVisible=false">
-                                ZIP
-                            </a>
-                            <a class="btn btn-default"
-                               @click="_sidebarVisible=false; $refs.plot.download()">
-                                SVG
+                <BTabs v-if="_selection != null">
+                    <BTab title="Contact geometry">
+                        <DeepZoomImage v-if="_selection != null"
+                                       :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/contacting-points/`"
+                                       ref="contactingPoints">
+                        </DeepZoomImage>
+                        <div v-if="_selection != null" class="pull-right">
+                            <a class="btn btn-default btn-block btn-lg mt-3"
+                               v-on:click="$refs.contactingPoints.download()">
+                                Download PNG
                             </a>
                         </div>
-                    </li>
-                    <li class="nav-item mb-1 mt-1">
-                        <a class="btn btn-default w-100"
-                           href="#"
-                           data-toggle="modal"
-                           :data-target="`#bibliography-modal-${uid}`"
-                           @click="_sidebarVisible=false">
-                            Bibliography
-                        </a>
-                    </li>
-                    <hr>
-                    <li class="nav-item mb-1 mt-1">
-                        <a class="btn btn-primary w-100"
-                           href="#"
-                           data-toggle="modal"
-                           :data-target="`#contact-mechanics-parameters-modal-${uid}`"
-                           @click="_sidebarVisible=false">
-                            Parameters
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+                    </BTab>
+                    <BTab title="Contact pressure">
+                        <DeepZoomImage v-if="_selection != null"
+                                       :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/pressure/`"
+                                       :colorbar="true"
+                                       ref="pressure">
+                        </DeepZoomImage>
+                        <div v-if="_selection != null" class="pull-right">
+                            <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.pressure.download()">
+                                Download PNG
+                            </a>
+                        </div>
+                    </BTab>
+                    <BTab title="Displacement">
+                        <DeepZoomImage v-if="_selection != null"
+                                       :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/displacement/`"
+                                       :colorbar="true"
+                                       ref="displacement">
+                        </DeepZoomImage>
+                        <div v-if="_selection != null" class="pull-right">
+                            <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.displacement.download()">
+                                Download PNG
+                            </a>
+                        </div>
+                    </BTab>
+                    <BTab title="Gap">
+                        <DeepZoomImage v-if="_selection != null"
+                                       :prefix-url="`/analysis/data/${_selection.analysisId}/${_selection.dataPath}/dzi/gap/`"
+                                       :colorbar="true"
+                                       ref="gap">
+                        </DeepZoomImage>
+                        <div v-if="_selection != null" class="pull-right">
+                            <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.gap.download()">
+                                Download PNG
+                            </a>
+                        </div>
+                    </BTab>
+                    <BTab title="Distribution functions">
+                        <BokehPlot
+                            v-if="_selection != null"
+                            :plots="distributionPlots"
+                            :data-sources="distributionDataSources"
+                            :options-widgets='["layout", "lineWidth", "symbolSize"]'
+                            :output-backend="_outputBackend">
+                        </BokehPlot>
+                    </BTab>
+                </BTabs>
+            </div>
         </div>
-        <!-- card-header sets the margins identical to the card so the title appears at the same position -->
-    </div>
-    <bibliography-modal
-        :id="`bibliography-modal-${uid}`"
-        :dois="_dois">
-    </bibliography-modal>
-    <contact-mechanics-parameters-modal
-        v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
-        :id="`contact-mechanics-parameters-modal-${uid}`"
-        :limits-to-function-kwargs="_limitsToFunctionKwargs"
-        :function-kwargs="_functionKwargs"
-        @update-contact-kwargs="updateCardWithFunctionKwargs">
-    </contact-mechanics-parameters-modal>
+    </AnalysisCard>
+    <ContactMechanicsParametersModal v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
+                                     v-model:visible="_parametersVisible"
+                                     v-model:kwargs="_functionKwargs"
+                                     :limits-to-function-kwargs="_limitsToFunctionKwargs"
+                                     @updateKwargs="updateCard">
+    </ContactMechanicsParametersModal>
 </template>

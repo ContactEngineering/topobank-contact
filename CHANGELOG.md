@@ -1,5 +1,10 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.2.5 (2024-05-12)
+
+- MAINT: Updated code to use bootstrap-vue-next components throughout
+- MAINT: Update to ContactMechanics 1.2.5
+
 ## 1.2.4 (2024-03-22)
  
 - BUG: Fixed version discovery
@@ -14,7 +19,7 @@
 
 ## 1.2.1 (2024-01-20)
 
-- MAINT: Update to ContactMechanics 1.12.2
+- MAINT: Update to ContactMechanics 1.2.2
 - MAINT: Enforcing PEP-8 style
 
 ## 1.2.0 (2023-11-25)
