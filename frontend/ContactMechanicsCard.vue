@@ -93,16 +93,6 @@ function onSelected(obj, data) {
     };
 }
 
-function taskStateChanged(nbRunningOrPending, nbSuccess, nbFailed) {
-    if (nbRunningOrPending === 0 && _nbRunningOrPending.value > 0) {
-        // All tasks finished, reload card
-        updateCard();
-    }
-    _nbRunningOrPending.value = nbRunningOrPending;
-    _nbSuccess.value = nbSuccess;
-    _nbFailed.value = nbFailed;
-}
-
 const contactMechanicsPlots = computed(() => {
     return [{
         title: "Contact area vs load",

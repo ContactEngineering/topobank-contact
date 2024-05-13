@@ -9,6 +9,7 @@ import {
     BFormRadio,
     BFormSelect,
     BFormSelectOption,
+    BFormTags,
     BInputGroup,
     BInputGroupText,
     BModal
@@ -32,9 +33,10 @@ const _periodicityOptions = ref([
     {value: "periodic", text: "Periodic (repeating array of the measurement)"},
     {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
 ]);
-const _pressureSelection = ref(kwargs.value === undefined ? "automatic" :
-    (kwargs.value.pressures === null ? "automatic" : "manual"));
-const _pressures = ref(kwargs.value === undefined ? null : kwargs.value.pressures);
+const _pressureSelection = ref(kwargs.value == null ? "automatic" :
+    (kwargs.value.pressures == null ? "automatic" : "manual"));
+const _pressures = ref(kwargs.value == null ? [] :
+    (kwargs.value.pressures == null ? [] : kwargs.value.pressures));
 const _recalculateWarning = ref(false);
 
 function validateParameters(event) {
@@ -51,19 +53,19 @@ function validateParameters(event) {
             _recalculateWarning.value = true;
         }
     } else { // pressure_selection_mode == "manual"
-        if (pressures === null) {
+        if (_pressures.value == null) {
             pressures = [1];
         } else {
-            pressures = String(pressures).split(/[,;]/).map(parseFloat).filter(p => {
+            pressures = _pressures.value.map(parseFloat).filter(p => {
                 return (p != null) && (p > 0)
-            });
+            }).sort();
         }
         if (pressures.length < 1) {
             pressures = [1];
         } else if (pressures.length > props.limitsToFunctionKwargs.pressures.maxlen) {
             pressures.length = props.limitsToFunctionKwargs.pressures.maxlen;
         }
-        if (String(pressures) !== String(pressures)) {
+        if (String(pressures) !== String(_pressures.value)) {
             _recalculateWarning.value = true;
         }
         _pressures.value = pressures;
@@ -80,6 +82,7 @@ function validateParameters(event) {
 
     if (_recalculateWarning.value) {
         // Return here if some parameters were modified
+        event.preventDefault();
         return;
     }
 
@@ -182,9 +185,10 @@ function validateParameters(event) {
                 <BInputGroupText>
                     Pressures
                 </BInputGroupText>
-                <BFormInput v-model="_pressures"
-                            :disabled="_pressureSelection != 'manual'">
-                </BFormInput>
+                <BFormTags v-model="_pressures"
+                           placeholder="Add value..."
+                           :disabled="_pressureSelection != 'manual'">
+                </BFormTags>
             </BInputGroup>
             <div class="row mb-3">
                 <div class="col-12">
@@ -224,7 +228,7 @@ function validateParameters(event) {
                 </div>
             </div>
 
-            <div class="alert alert-warning" v-if="_recalculateWarning">
+            <div class="alert alert-warning mt-2" v-if="_recalculateWarning">
                 Some of the input parameters were invalid. We have updated those parameters for you.
                 Please double-check
                 the parameters and click <b>Run calculation</b> when ready.
