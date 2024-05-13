@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.3.2 (2024-05-13)
+
+- BUG: Fixed unit conversion in contact mechanics distributions plots
+
 ## 1.3.1 (2024-05-13)
 
 - BUG: Fixed pressure input
