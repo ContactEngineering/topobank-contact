@@ -96,26 +96,24 @@ function onSelected(obj, data) {
 const contactMechanicsPlots = computed(() => {
     return [{
         title: "Contact area vs load",
-        xData: "mean_pressures",
-        yData: "total_contact_areas",
+        xData: data => data.mean_pressures,
+        yData: data => data.total_contact_areas,
         auxiliaryDataColumns: {
             dataPath: "data_paths"
         },
-        alphaData: "converged",
-        alphaDataMap: (value) => value ? 1.0 : 0.3,
+        alphaData: data => data.converged.map(value => value ? 1.0 : 0.3),
         xAxisLabel: "$$p/E^*$$",
         yAxisLabel: "$$A/A_0$$",
         xAxisType: "log",
         yAxisType: "log"
     }, {
         title: "Load vs displacement",
-        xData: "mean_gaps",
-        yData: "mean_pressures",
+        xData: data => data.mean_gaps,
+        yData: data => data.mean_pressures,
         auxiliaryDataColumns: {
             dataPath: "data_paths"
         },
-        alphaData: "converged",
-        alphaDataMap: (value) => value ? 1.0 : 0.3,
+        alphaData: data => data.converged.map(value => value ? 1.0 : 0.3),
         xAxisLabel: "$$u/h_\\text{rms}$$",
         yAxisLabel: "$$p/E^*$$",
         xAxisType: "linear",
@@ -127,27 +125,32 @@ const contactMechanicsCategories = computed(() => {
     return [{key: "subjectName", title: "Measurements"}];
 });
 
-const distributionPlots = computed(() => {
+const pressureDistributionPlot = computed(() => {
     return [{
         title: "Pressure",
-        xData: "pressure",
-        yData: "pressureProbabilityDensity",
+        xData: data => data.pressure,
+        yData: data => data.pressureProbabilityDensity,
         xAxisLabel: "$$p\\text{ (}E^*\\text{)}$$",
         yAxisLabel: "$$P(p)\\text{ (}E^{*-1}\\text{)}$$"
-    }, {
+    }];
+});
+
+const gapDistributionPlot = computed(() => {
+    return [{
         title: "Gap",
-        xData: "gap",
-        xDataMap: (value) => gapSIScaleFactor * value,
-        yData: "gapProbabilityDensity",
-        yDataMap: (value) => gapProbabilityDensitySIScaleFactor * value,
+        xData: data => data.gap.map(value => data.gapSIScaleFactor * value),
+        yData: data => data.gapProbabilityDensity.map(value => data.gapProbabilityDensitySIScaleFactor * value),
         xAxisLabel: "$$g\\text{ (m)}$$",
         yAxisLabel: "$$P(g)\\text{ (m}^{-1}\\text{)}$$"
-    }, {
+    }];
+});
+
+const clusterAreaDistributionPlot = computed(() => {
+    return [{
         title: "Cluster area",
-        xData: "clusterArea",
-        xDataMap: (value) => clusterAreaSIScaleFactor * value,
-        yData: "clusterAreaProbabilityDensity",
-        yDataMap: (value) => clusterAreaProbabilityDensitySIScaleFactor * value,
+        xData: data => data.clusterArea.map(value => data.clusterAreaSIScaleFactor * value),
+        yData: data => data.clusterAreaProbabilityDensity.map(
+            value => data.clusterAreaProbabilityDensitySIScaleFactor * value),
         xAxisLabel: "$$A\\text{ (m}^2\\text{)}$$",
         yAxisLabel: "$$P(A)\\text{ (m}^{-2}\\text{)}$$"
     }];
@@ -261,13 +264,28 @@ const analysisIds = computed(() => {
                             </a>
                         </div>
                     </BTab>
-                    <BTab title="Distribution functions">
-                        <BokehPlot
-                            v-if="_selection != null"
-                            :plots="distributionPlots"
-                            :data-sources="distributionDataSources"
-                            :options-widgets='["layout", "lineWidth", "symbolSize"]'
-                            :output-backend="_outputBackend">
+                    <BTab title="Pressure distribution">
+                        <BokehPlot v-if="_selection != null"
+                                   :plots="pressureDistributionPlot"
+                                   :data-sources="distributionDataSources"
+                                   :options-widgets='["layout", "lineWidth", "symbolSize"]'
+                                   :output-backend="_outputBackend">
+                        </BokehPlot>
+                    </BTab>
+                    <BTab title="Gap distribution">
+                        <BokehPlot v-if="_selection != null"
+                                   :plots="gapDistributionPlot"
+                                   :data-sources="distributionDataSources"
+                                   :options-widgets='["layout", "lineWidth", "symbolSize"]'
+                                   :output-backend="_outputBackend">
+                        </BokehPlot>
+                    </BTab>
+                    <BTab title="Cluster area distribution">
+                        <BokehPlot v-if="_selection != null"
+                                   :plots="clusterAreaDistributionPlot"
+                                   :data-sources="distributionDataSources"
+                                   :options-widgets='["layout", "lineWidth", "symbolSize"]'
+                                   :output-backend="_outputBackend">
                         </BokehPlot>
                     </BTab>
                 </BTabs>
