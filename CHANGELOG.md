@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.3.1 (2024-05-13)
+
+- BUG: Fixed pressure input
+
 ## 1.3.0 (2024-05-12)
 
 - ENH: Use new `AnalysisCard` component
