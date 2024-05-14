@@ -43,6 +43,13 @@ function validateParameters(event) {
     let pressures = null;
     _recalculateWarning.value = false;
 
+    if (_enableHardness.value) {
+        if (_hardness.value < 0) {
+            _hardness.value = 0;
+            _recalculateWarning.value = true;
+        }
+    }
+
     if (_pressureSelection.value == "automatic") {
         if (_nbSteps.value < props.limitsToFunctionKwargs.nsteps.min) {
             _nbSteps.value = props.limitsToFunctionKwargs.nsteps.min;
@@ -95,12 +102,21 @@ function validateParameters(event) {
     emit('updateKwargs', kwargs.value);
 }
 
+function pressureValidator(str) {
+    const value = parseFloat(str);
+    if (!isNaN(value) && value > 0) {
+        return true;
+    }
+    return false;
+}
+
 </script>
 
 <template>
     <BModal v-model="visible"
             size="xl"
             title="Contact mechanics"
+            ok-title="Run calculation"
             @ok="validateParameters">
         <!-- Substrate selection -->
         <BForm>
@@ -132,8 +148,11 @@ function validateParameters(event) {
                 <BInputGroupText>
                     <BFormCheckbox v-model="_enableHardness"></BFormCheckbox>
                 </BInputGroupText>
-                <BFormInput type="number" min="0" step="0.1"
-                            v-model="_hardness" :disabled="!_enableHardness">
+                <BFormInput type="number"
+                            min="0"
+                            step="0.1"
+                            v-model="_hardness"
+                            :disabled="!_enableHardness">
                 </BFormInput>
             </BInputGroup>
             <div class="row mb-3">
@@ -158,7 +177,7 @@ function validateParameters(event) {
                     Number of steps
                 </BInputGroupText>
                 <BFormInput type="number"
-                            :min="limitsToFunctionKwargs.nsteps.min"
+                            :min="Math.max(2, limitsToFunctionKwargs.nsteps.min)"
                             :max="limitsToFunctionKwargs.nsteps.max"
                             step="1"
                             v-model="_nbSteps"
@@ -186,7 +205,12 @@ function validateParameters(event) {
                     Pressures
                 </BInputGroupText>
                 <BFormTags v-model="_pressures"
-                           placeholder="Add value..."
+                           separator=" ,;"
+                           placeholder="Enter pressure values separated by space, comma or semicolon"
+                           remove-on-delete
+                           :tag-validator="pressureValidator"
+                           invalid-tag-text="Pressure value must be a positive number"
+                           duplicate-tag-text="Duplicate pressure value"
                            :disabled="_pressureSelection != 'manual'">
                 </BFormTags>
             </BInputGroup>
@@ -210,7 +234,7 @@ function validateParameters(event) {
                     Max. number of iterations
                 </BInputGroupText>
                 <BFormInput type="number"
-                            :min="limitsToFunctionKwargs.maxiter.min"
+                            :min="Math.max(1, limitsToFunctionKwargs.maxiter.min)"
                             :max="limitsToFunctionKwargs.maxiter.max"
                             step="100" class="form-control"
                             v-model="_maxNbIter">
