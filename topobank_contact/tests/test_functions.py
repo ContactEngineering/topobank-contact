@@ -3,8 +3,9 @@ import numpy as np
 
 from SurfaceTopography import NonuniformLineScan as STNonuniformLineScan
 
-from topobank.analysis.functions import IncompatibleTopographyException
-from topobank.analysis.tests.utils import FakeTopographyModel, DummyProgressRecorder
+from topobank.testing.factories import FakeTopographyModel, DummyProgressRecorder
+
+from topobank_contact.functions import IncompatibleTopographyException
 
 from ..functions import contact_mechanics
 

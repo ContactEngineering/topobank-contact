@@ -13,7 +13,7 @@ def test_resolve_card_view(api_rf, example_contact_analysis, template_flavor, ha
 
     request = api_rf.get(f'/plugins/contact/card/contact-mechanics/{example_contact_analysis.function.id}',
                          {'function_id': example_contact_analysis.function.id, 'subjects': subjects})
-    request.user = example_contact_analysis.related_surfaces()[0].creator
+    request.user = example_contact_analysis.get_related_surfaces()[0].creator
     request.session = {}
 
     response = contact_mechanics_card_view(request)
