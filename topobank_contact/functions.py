@@ -1,27 +1,22 @@
 import io
 import json
-
-from django.core.files import File
-from django.conf import settings
-
-import xarray as xr
-import numpy as np
-import tempfile
 import logging
+import tempfile
 
+import numpy as np
+import xarray as xr
+from ContactMechanics import (FreeFFTElasticHalfSpace,
+                              PeriodicFFTElasticHalfSpace)
+from ContactMechanics.PlasticSystemSpecialisations import \
+    PlasticNonSmoothContactSystem
+from ContactMechanics.Systems import NonSmoothContactSystem
+from django.conf import settings
+from django.core.files import File
 from SurfaceTopography import PlasticTopography
 from SurfaceTopography.Support.UnitConversion import (
-    get_unit_conversion_factor,
-    suggest_length_unit_for_data,
-)
+    get_unit_conversion_factor, suggest_length_unit_for_data)
 from SurfaceTopography.Uniform.GeometryAnalysis import (
-    patch_areas,
-    assign_patch_numbers_area,
-)
-from ContactMechanics import PeriodicFFTElasticHalfSpace, FreeFFTElasticHalfSpace
-from ContactMechanics.PlasticSystemSpecialisations import PlasticNonSmoothContactSystem
-from ContactMechanics.Systems import NonSmoothContactSystem
-
+    assign_patch_numbers_area, patch_areas)
 from topobank.analysis.registry import register_implementation
 from topobank.manager.utils import default_storage_replace, make_dzi
 from topobank.supplib.json import ExtendedJSONEncoder
@@ -395,7 +390,7 @@ def contact_mechanics(
     pentol = rms_height / (10 * np.mean(topography.nb_grid_pts))
     pentol = max(pentol, min_pentol)
 
-    netcdf_format = "NETCDF4"
+    netcdf_format = "NETCDF3_64BIT"
 
     data_paths = []  # collect in _next_contact_step?
 
