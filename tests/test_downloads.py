@@ -1,13 +1,14 @@
-import pytest
 import zipfile
 from io import BytesIO
 
+import pytest
 from django.shortcuts import reverse
 
-from ..downloads import download_contact_mechanics_analyses_as_zip
+from topobank_contact.downloads import \
+    download_contact_mechanics_analyses_as_zip
 
 
-@pytest.mark.urls('topobank_contact.tests.urls')
+@pytest.mark.urls('topobank_contact.testing.urls')
 @pytest.mark.django_db
 def test_download_contact_analyses_to_zip(api_rf, example_contact_analysis):
     request = api_rf.get(reverse('analysis:download',

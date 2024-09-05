@@ -1,6 +1,5 @@
-from io import StringIO
-
 import pytest
+from django.core.files.base import ContentFile
 from topobank.analysis.models import AnalysisFunction
 from topobank.testing.factories import (OrganizationFactory, SurfaceFactory,
                                         Topography2DFactory,
@@ -14,7 +13,9 @@ from topobank.testing.fixtures import test_analysis_function  # noqa: F401
 
 @pytest.mark.django_db
 @pytest.fixture
-def example_contact_analysis(test_analysis_function, user_with_plugin):  # noqa: F811
+def example_contact_analysis(test_analysis_function, user_with_plugin, settings):  # noqa: F811
+    settings.DELETE_EXISTING_FILES = True
+
     func = AnalysisFunction.objects.get(name="Contact mechanics")
 
     storage_prefix = "test_contact_mechanics/"
@@ -52,19 +53,11 @@ def example_contact_analysis(test_analysis_function, user_with_plugin):  # noqa:
         function=func, result=result, subject_topography=topo
     )
 
-    # create files in storage for zipping
-    from django.core.files.storage import default_storage
-
-    files_to_delete = []
-
     for k in range(4):
-        fn = f"{analysis.storage_prefix}/step-{k}/nc/results.nc"
-        default_storage.save(fn, StringIO(f"test content for step {k}"))
+        fn = f"step-{k}/nc/results.nc"
+        analysis.folder.save_file(fn, "der", ContentFile(f"test content for step {k}"))
 
-    yield analysis
-
-    for fn in files_to_delete:
-        default_storage.delete(fn)
+    return analysis
 
 
 @pytest.mark.django_db
