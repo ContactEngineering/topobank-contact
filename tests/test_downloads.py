@@ -23,6 +23,7 @@ def test_download_contact_analyses_to_zip(api_rf, example_contact_analysis):
         "README.txt",
         f"{example_contact_analysis.subject.name}/plot.csv",
         f"{example_contact_analysis.subject.name}/info.txt",
+        f"{example_contact_analysis.subject.name}/result.json",
         f"{example_contact_analysis.subject.name}/result-step-0.nc",
         f"{example_contact_analysis.subject.name}/result-step-1.nc",
         f"{example_contact_analysis.subject.name}/result-step-2.nc",

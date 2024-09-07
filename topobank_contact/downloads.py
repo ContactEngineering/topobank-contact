@@ -11,7 +11,7 @@ from topobank.analysis.registry import register_download_function
 from .functions import VIZ_CONTACT_MECHANICS
 
 
-@register_download_function(VIZ_CONTACT_MECHANICS, 'results', 'zip')
+@register_download_function(VIZ_CONTACT_MECHANICS, "results", "zip")
 def download_contact_mechanics_analyses_as_zip(request, analyses):
     """Provides a ZIP file with contact mechanics data.
 
@@ -22,7 +22,7 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
 
     bytes = io.BytesIO()
 
-    zf = zipfile.ZipFile(bytes, mode='w')
+    zf = zipfile.ZipFile(bytes, mode="w")
 
     #
     # Add directories and files for all analyses
@@ -30,7 +30,6 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
     zip_dirs = set()
 
     for analysis in analyses:
-
         zip_dir = analysis.subject.name
         if zip_dir in zip_dirs:
             # make directory unique
@@ -42,48 +41,66 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
         #
         analysis_result = analysis.result
 
-        col_keys = ['mean_pressures', 'total_contact_areas', 'mean_gaps', 'converged', 'data_paths']
-        col_names = ["Normalized pressure p/E*", "Fractional contact area A/A0", "Normalized mean gap u/h_rms",
-                     "converged", "filename"]
+        col_keys = [
+            "mean_pressures",
+            "total_contact_areas",
+            "mean_gaps",
+            "converged",
+            "data_paths",
+        ]
+        col_names = [
+            "Normalized pressure p/E*",
+            "Fractional contact area A/A0",
+            "Normalized mean gap u/h_rms",
+            "converged",
+            "filename",
+        ]
 
         col_dicts = {col_names[i]: analysis_result[k] for i, k in enumerate(col_keys)}
         plot_df = pd.DataFrame(col_dicts)
-        plot_df['filename'] = "result-" + plot_df['filename'].map(lambda fn: os.path.split(fn)[1]) + ".nc"
+        plot_df["filename"] = (
+            "result-" + plot_df["filename"].map(lambda fn: os.path.split(fn)[1]) + ".nc"
+        )
         # only simple filename
 
-        plot_filename_in_zip = os.path.join(zip_dir, 'plot.csv')
+        plot_filename_in_zip = os.path.join(zip_dir, "plot.csv")
         zf.writestr(plot_filename_in_zip, plot_df.to_csv())
 
         #
         # Add nc files from storage
         #
-        prefix = analysis.storage_prefix
-
-        directories, filenames = default_storage.listdir(prefix)
-
-        for dirname in directories:
-            # each directory corresponds to a step
-            input_file = default_storage.open(f"{prefix}/{dirname}/nc/results.nc")
-
-            filename_in_zip = os.path.join(zip_dir, f"result-{dirname}.nc")
+        for manifest in analysis.folder:
+            if manifest.filename.startswith("step-"):
+                prefix, suffix = manifest.filename.split("/", maxsplit=1)
+                step = int(prefix[5:])
+                filename_in_zip = os.path.join(zip_dir, f"result-step-{step}.nc")
+            else:
+                filename_in_zip = os.path.join(zip_dir, manifest.filename)
 
             try:
-                zf.writestr(filename_in_zip, input_file.read())
+                zf.writestr(filename_in_zip, manifest.file.read())
             except Exception as exc:
-                zf.writestr("errors-{}.txt".format(dirname),
-                            "Cannot save file {} in ZIP, reason: {}".format(filename_in_zip, str(exc)))
+                zf.writestr(
+                    "errors-{}.txt".format(filename_in_zip),
+                    "Cannot save file {} in ZIP, reason: {}".format(
+                        filename_in_zip, str(exc)
+                    ),
+                )
 
         #
         # Add a file with version information
         #
-        zf.writestr(os.path.join(zip_dir, 'info.txt'),
-                    analysis_header_for_txt_file(analysis, dois=True))
+        zf.writestr(
+            os.path.join(zip_dir, "info.txt"),
+            analysis_header_for_txt_file(analysis, dois=True),
+        )
 
     #
     # Add a Readme file
     #
-    zf.writestr("README.txt",
-                """
+    zf.writestr(
+        "README.txt",
+        """
 Contents of this ZIP archive
 ============================
 This archive contains data from contact mechanics calculation.
@@ -179,13 +196,17 @@ For version information of the packages used, please look into the files named
 'info.txt' in the subdirectories for each measurement. The versions of the packages
 used for analysis may differ among measurements, because they may have been
 calculated at different times.
-    """)
+    """,
+    )
 
     zf.close()
 
     # Prepare response object.
-    response = HttpResponse(bytes.getvalue(),
-                            content_type='application/x-zip-compressed')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format('contact_mechanics.zip')
+    response = HttpResponse(
+        bytes.getvalue(), content_type="application/x-zip-compressed"
+    )
+    response["Content-Disposition"] = 'attachment; filename="{}"'.format(
+        "contact_mechanics.zip"
+    )
 
     return response
