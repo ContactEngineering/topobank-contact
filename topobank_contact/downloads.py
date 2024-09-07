@@ -3,7 +3,6 @@ import zipfile
 import os.path
 
 import pandas as pd
-from django.core.files.storage import default_storage
 from django.http import HttpResponse
 
 from topobank.analysis.downloads import analysis_header_for_txt_file
