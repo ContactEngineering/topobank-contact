@@ -260,6 +260,7 @@ class BoundaryElementMethod(AnalysisImplementation):
     class Meta:
         name = "topobank_contact.boundary_element_method"
         display_name = "Contact mechanics"
+        visualization_type = VIZ_CONTACT_MECHANICS
 
         implementations = {
             Topography: "topography_implementation",
