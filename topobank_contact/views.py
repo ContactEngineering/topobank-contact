@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.shortcuts import reverse
 
 from trackstats.models import Metric
 
