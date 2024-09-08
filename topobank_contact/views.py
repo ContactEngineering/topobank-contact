@@ -6,19 +6,22 @@ from trackstats.models import Metric
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from topobank.files.serializers import ManifestSerializer
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
 from topobank.analysis.utils import filter_and_order_analyses
 from topobank.analysis.controller import AnalysisController
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def contact_mechanics_card_view(request, **kwargs):
     controller = AnalysisController.from_request(request, **kwargs)
 
     #
     # for statistics, count views per function
     #
-    increase_statistics_by_date_and_object(Metric.objects.ANALYSES_RESULTS_VIEW_COUNT, obj=controller.function)
+    increase_statistics_by_date_and_object(
+        Metric.objects.ANALYSES_RESULTS_VIEW_COUNT, obj=controller.function
+    )
 
     #
     # Trigger missing analyses
@@ -33,7 +36,7 @@ def contact_mechanics_card_view(request, **kwargs):
     #
     # Filter only successful ones
     #
-    analyses_success = controller.get(['su'], True)
+    analyses_success = controller.get(["su"], True)
 
     if len(analyses_success) > 0:
         #
@@ -51,20 +54,25 @@ def contact_mechanics_card_view(request, **kwargs):
             #
             # Context information for this data source
             #
-            data_sources_dict += [{
-                'sourceName': f'analysis-{analysis.id}',
-                'subjectName': subject_name,
-                'subjectNameIndex': a_index,
-                'url': reverse('analysis:data', args=(analysis.pk, 'result.json')),
-                'showSymbols': True,  # otherwise symbols do not appear in legend
-                'width': 1.
-            }]
+            data_sources_dict += [
+                {
+                    "sourceName": f"analysis-{analysis.id}",
+                    "subjectName": subject_name,
+                    "subjectNameIndex": a_index,
+                    "url": ManifestSerializer(
+                        analysis.folder.find_file("result.json"),
+                        context={"request": request},
+                    ).data["file"],
+                    "showSymbols": True,  # otherwise symbols do not appear in legend
+                    "width": 1.0,
+                }
+            ]
 
-        context['plotConfiguration'] = {
-            'dataSources': data_sources_dict,
-            'outputBackend': settings.BOKEH_OUTPUT_BACKEND
+        context["plotConfiguration"] = {
+            "dataSources": data_sources_dict,
+            "outputBackend": settings.BOKEH_OUTPUT_BACKEND,
         }
 
-    context['limitsToFunctionKwargs'] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
+    context["limitsToFunctionKwargs"] = settings.CONTACT_MECHANICS_KWARGS_LIMITS
 
     return Response(context)
