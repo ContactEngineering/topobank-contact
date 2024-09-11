@@ -2,10 +2,16 @@ import numpy as np
 import pytest
 from SurfaceTopography import NonuniformLineScan as STNonuniformLineScan
 from topobank.testing.factories import FolderFactory
-from topobank.testing.utils import DummyProgressRecorder, FakeTopographyModel
+from topobank.testing.utils import (
+    DummyProgressRecorder,
+    FakeTopographyModel,
+    AnalysisResultMock,
+)
 
-from topobank_contact.functions import (BoundaryElementMethod,
-                                        IncompatibleTopographyException)
+from topobank_contact.functions import (
+    BoundaryElementMethod,
+    IncompatibleTopographyException,
+)
 
 
 def test_contact_mechanics_incompatible_topography():
@@ -16,7 +22,7 @@ def test_contact_mechanics_incompatible_topography():
 
     with pytest.raises(IncompatibleTopographyException):
         BoundaryElementMethod().topography_implementation(
-            topography, folder=FolderFactory()
+            AnalysisResultMock(topography, folder=FolderFactory())
         )
 
 
@@ -28,7 +34,8 @@ def test_contact_mechanics_whether_given_pressures_in_result(
     result = BoundaryElementMethod(
         nsteps=None, pressures=given_pressures
     ).topography_implementation(
-        topography, folder=FolderFactory(), progress_recorder=DummyProgressRecorder()
+        AnalysisResultMock(topography, folder=FolderFactory()),
+        progress_recorder=DummyProgressRecorder(),
     )
 
     np.testing.assert_almost_equal(result["mean_pressures"], given_pressures)
@@ -50,7 +57,9 @@ def test_exception_topography_too_large_for_contact_mechanics(
     )  # this make the topography returning high numbers of grid points
 
     with pytest.raises(IncompatibleTopographyException):
-        BoundaryElementMethod().topography_implementation(topo, folder=FolderFactory())
+        BoundaryElementMethod().topography_implementation(
+            AnalysisResultMock(topo, folder=FolderFactory())
+        )
 
 
 @pytest.mark.parametrize(
@@ -71,8 +80,7 @@ def test_alert_if_topographys_periodicity_does_not_match(
     result = BoundaryElementMethod(
         substrate=substrate,
     ).topography_implementation(
-        topo,
-        folder=FolderFactory(),
+        AnalysisResultMock(topo, folder=FolderFactory()),
         progress_recorder=DummyProgressRecorder(),
     )
 

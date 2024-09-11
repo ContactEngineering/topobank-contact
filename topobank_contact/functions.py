@@ -20,7 +20,6 @@ from SurfaceTopography.Uniform.GeometryAnalysis import (
     assign_patch_numbers_area, patch_areas)
 from topobank.analysis.functions import AnalysisImplementation
 from topobank.analysis.registry import register_implementation
-from topobank.files.models import Folder
 from topobank.manager.models import Topography
 from topobank.manager.utils import render_deepzoom
 from topobank.supplib.json import ExtendedJSONEncoder
@@ -274,7 +273,7 @@ class BoundaryElementMethod(AnalysisImplementation):
         maxiter: int = 100
 
     def topography_implementation(
-        self, topography: Topography, folder: Folder, progress_recorder=None
+        self, analysis, progress_recorder=None
     ):
         """
         Note that `loads` is a list of pressures if the substrate is periodic and a list of forces otherwise.
@@ -299,6 +298,9 @@ class BoundaryElementMethod(AnalysisImplementation):
         nsteps = self.kwargs.nsteps
         pressures = self.kwargs.pressures
         maxiter = self.kwargs.maxiter
+
+        topography = analysis.subject
+        folder = analysis.folder
 
         # Check whether function is called with the right substrate_str and issue a warning if not
         alerts = []  # list of dicts with keys 'alert_class', 'message'
