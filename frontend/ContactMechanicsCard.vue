@@ -59,11 +59,11 @@ function updateCard() {
             _analyses.value = response.data.analyses;
             _dois.value = response.data.dois;
             if (_functionKwargs.value === null) {
-                _functionKwargs.value = response.data.uniqueKwargs;
+                _functionKwargs.value = response.data.unique_kwargs;
             } else {
                 _functionKwargs.value = {
                     ..._functionKwargs.value,
-                    ...response.data.uniqueKwargs  // override since the server may report changes
+                    ...response.data.unique_kwargs  // override since the server may report changes
                 };
             }
             _limitsToFunctionKwargs.value = response.data.limitsToFunctionKwargs;
