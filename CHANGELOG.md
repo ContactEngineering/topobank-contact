@@ -1,5 +1,10 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.4.1 (2024-11-13)
+
+- BUG: Reintroduced data paths
+- BUG: Fixed showing of contact mechanics details
+
 ## 1.4.0 (2024-11-13)
 
 - MAINT: Updates for API changes in topobank 1.50.0
