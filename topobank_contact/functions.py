@@ -421,6 +421,8 @@ class BoundaryElementMethod(AnalysisImplementation):
 
         netcdf_format = "NETCDF3_64BIT"
 
+        data_paths = []
+
         if pressures is not None:
             nsteps = len(pressures)
 
@@ -486,6 +488,7 @@ class BoundaryElementMethod(AnalysisImplementation):
                 )
 
             storage_path = f"step-{i}"
+            data_paths.append(storage_path)
             with tempfile.NamedTemporaryFile(prefix="analysis-") as tmpfile:
                 dataset.to_netcdf(tmpfile.name, format=netcdf_format)
                 tmpfile.seek(0)
@@ -610,6 +613,7 @@ class BoundaryElementMethod(AnalysisImplementation):
         mean_gap = np.array(mean_gap)
         converged = np.array(converged)
 
+        data_paths = np.array(data_paths, dtype='str')
         sort_order = np.argsort(mean_pressure)
 
         return dict(
@@ -622,6 +626,7 @@ class BoundaryElementMethod(AnalysisImplementation):
             mean_displacements=mean_displacement[sort_order] / rms_height,
             mean_gaps=mean_gap[sort_order] / rms_height,
             converged=converged[sort_order],
+            data_paths=data_paths[sort_order],
             alerts=alerts,
         )
 
