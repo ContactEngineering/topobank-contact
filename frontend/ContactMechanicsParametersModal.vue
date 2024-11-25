@@ -28,7 +28,7 @@ const _enableHardness = ref(kwargs.value === undefined ? false : kwargs.value.ha
 const _hardness = ref(kwargs.value === undefined ? null : kwargs.value.hardness);
 const _maxNbIter = ref(kwargs.value === undefined ? 100 : kwargs.value.maxiter);
 const _nbSteps = ref(kwargs.value === undefined ? 10 : kwargs.value.nsteps);
-const _periodicity = ref(kwargs.value === undefined ? "nonperiodic" : kwargs.value.substrate_str);
+const _periodicity = ref(kwargs.value === undefined ? "nonperiodic" : kwargs.value.substrate);
 const _periodicityOptions = ref([
     {value: "periodic", text: "Periodic (repeating array of the measurement)"},
     {value: "nonperiodic", text: "Free boundaries (flat punch with measurement)"}
@@ -93,7 +93,7 @@ function validateParameters(event) {
         return;
     }
 
-    kwargs.value.substrate_str = _periodicity.value;
+    kwargs.value.substrate = _periodicity.value;
     kwargs.value.hardness = _enableHardness.value ? parseFloat(_hardness.value) : null;
     kwargs.value.nsteps = _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null;
     kwargs.value.pressures = _pressureSelection.value == "manual" ? _pressures.value : null;
