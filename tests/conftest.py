@@ -37,7 +37,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
             storage_prefix + "step-3",
         ],
         effective_kwargs=dict(
-            substrate_str="periodic",
+            substrate="periodic",
             hardness=1,
             nsteps=11,
             pressures=[1, 2, 3, 4],

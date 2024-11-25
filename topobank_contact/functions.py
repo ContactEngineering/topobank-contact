@@ -1,7 +1,7 @@
 import json
 import logging
 import tempfile
-from typing import Union
+from typing import Literal, Union
 
 import numpy as np
 import xarray as xr
@@ -266,33 +266,22 @@ class BoundaryElementMethod(AnalysisImplementation):
         }
 
     class Parameters(AnalysisImplementation.Parameters):
-        substrate: str = "nonperiodic"
+        # Nonperiodic or periodic boundary conditions; if None, choose from topography's
+        # 'is_periodic' flag
+        substrate: Union[Literal["nonperiodic", "periodic"], None] = "nonperiodic"
+        # Hardness of the substrate in units of E*
         hardness: Union[float, None] = None
+        # Number of load steps; if None, "pressures" must be given a list
         nsteps: Union[int, None] = 10
+        # Explicit pressure values; if None, choose pressures automatically by using
+        # given number of steps (nsteps)
         pressures: Union[list[float], None] = None
+        # Maximum number of iterations unless convergence
         maxiter: int = 100
 
     def topography_implementation(
         self, analysis, progress_recorder=None
     ):
-        """
-        Note that `loads` is a list of pressures if the substrate is periodic and a list of forces otherwise.
-
-        :param topography:
-        :param substrate_str: one of ['periodic', 'nonperiodic', None ]; if None, choose from topography's 'is_periodic'
-            flag
-        :param hardness: float value (unit: E*)
-        :param nsteps: int or None, if None, "loads" must be given a list
-        :param pressures: list of floats or None, if None, choose pressures automatically by using given number of steps
-            (nsteps)
-        :param maxiter: int, maximum number of iterations unless convergence
-        :param progress_recorder:
-        :param storage_prefix:
-        :return:
-
-        The default argument of `substrate_str` was changed to `"nonperiodic"` because of problems
-        when requesting the results, when using `None`. See GH issue #788.
-        """
         substrate_str = self.kwargs.substrate
         hardness = self.kwargs.hardness
         nsteps = self.kwargs.nsteps
