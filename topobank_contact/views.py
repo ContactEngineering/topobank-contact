@@ -1,20 +1,24 @@
+import pydantic
 from django.conf import settings
-
-from trackstats.models import Metric
-
+from django.http import HttpResponseBadRequest
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from topobank.analysis.controller import AnalysisController
+from topobank.analysis.utils import filter_and_order_analyses
 from topobank.files.serializers import ManifestSerializer
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
-from topobank.analysis.utils import filter_and_order_analyses
-from topobank.analysis.controller import AnalysisController
+from trackstats.models import Metric
 
 
 @api_view(["GET"])
 def contact_mechanics_card_view(request, **kwargs):
-    controller = AnalysisController.from_request(request, **kwargs)
-
+    try:
+        controller = AnalysisController.from_request(request, **kwargs)
+    except pydantic.ValidationError:
+        # The kwargs that were provided do not match the function
+        return HttpResponseBadRequest(
+            "Error validating kwargs for analysis function"
+        )
     #
     # for statistics, count views per function
     #

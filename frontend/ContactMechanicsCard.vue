@@ -77,7 +77,7 @@ function updateCard() {
     }).catch(error => {
         show?.({
             props: {
-                title: "Error analysis results",
+                title: "Error fetching analysis results",
                 body: error.message,
                 variant: 'danger'
             }

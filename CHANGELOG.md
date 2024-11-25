@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.4.2 (2024-11-25)
+
+- BUG: Return bad request if validation of contact mechanics parameters fails
+
 ## 1.4.1 (2024-11-13)
 
 - BUG: Reintroduced data paths
