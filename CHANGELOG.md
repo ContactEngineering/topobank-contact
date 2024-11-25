@@ -2,6 +2,7 @@
 
 ## 1.4.2 (2024-11-25)
 
+- BUG: API key is `substrate`, not `substrate_str`
 - BUG: Return bad request if validation of contact mechanics parameters fails
 
 ## 1.4.1 (2024-11-13)
