@@ -1,6 +1,6 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.4.2 (2024-11-25)
+## 1.4.2 (2024-11-27)
 
 - BUG: API key is `substrate`, not `substrate_str`
 - BUG: Return bad request if validation of contact mechanics parameters fails
