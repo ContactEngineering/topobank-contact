@@ -93,11 +93,13 @@ function validateParameters(event) {
         return;
     }
 
-    kwargs.value.substrate = _periodicity.value;
-    kwargs.value.hardness = _enableHardness.value ? parseFloat(_hardness.value) : null;
-    kwargs.value.nsteps = _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null;
-    kwargs.value.pressures = _pressureSelection.value == "manual" ? _pressures.value : null;
-    kwargs.value.maxiter = parseInt(_maxNbIter.value);
+    kwargs.value = {
+        substrate: _periodicity.value,
+        hardness: _enableHardness.value ? parseFloat(_hardness.value) : null,
+        nsteps: _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null,
+        pressures: _pressureSelection.value == "manual" ? _pressures.value : null,
+        maxiter: parseInt(_maxNbIter.value),
+    }
 
     emit('updateKwargs', kwargs.value);
 }
@@ -122,7 +124,8 @@ function pressureValidator(str) {
         <BForm>
             <BInputGroup prepend="Type">
                 <BFormSelect v-model="_periodicity">
-                    <BFormSelectOption v-for="p in _periodicityOptions" :value="p.value">
+                    <BFormSelectOption v-for="p in _periodicityOptions"
+                                       :value="p.value">
                         {{ p.text }}
                     </BFormSelectOption>
                 </BFormSelect>
@@ -130,14 +133,18 @@ function pressureValidator(str) {
             <div class="row mb-3">
                 <div class="col-12">
                     <small>
-                        This option determines how the elastic interactions are calculated. This
+                        This option determines how the elastic interactions are
+                        calculated. This
                         affects edge effects
-                        that may show up in the results at large contact area. Calculations can
+                        that may show up in the results at large contact area.
+                        Calculations can
                         assume that the surface
-                        repeats periodically or that it is pushing down on a nonperiodic,
+                        repeats periodically or that it is pushing down on a
+                        nonperiodic,
                         infinitely expanded
                         half-space.
-                        The latter option corresponds to mapping the surface topography on a
+                        The latter option corresponds to mapping the surface topography
+                        on a
                         flat punch.
                     </small>
                 </div>
@@ -158,7 +165,8 @@ function pressureValidator(str) {
             <div class="row mb-3">
                 <div class="col-12">
                     <small>
-                        Setting a hardness enables plastic calculations. Local pressure cannot
+                        Setting a hardness enables plastic calculations. Local pressure
+                        cannot
                         exceed the hardness
                         value.
                     </small>
@@ -187,9 +195,11 @@ function pressureValidator(str) {
             <div class="row mb-3">
                 <div class="col-12">
                     <small>
-                        Select this option to run a fully automatic calculation. External
+                        Select this option to run a fully automatic calculation.
+                        External
                         pressures are selected such
-                        that contact area vs. pressure is approximately equally spaced on a
+                        that contact area vs. pressure is approximately equally spaced
+                        on a
                         log-log plot.
                     </small>
                 </div>
@@ -217,9 +227,11 @@ function pressureValidator(str) {
             <div class="row mb-3">
                 <div class="col-12">
                     <small>
-                        Enter positive pressure values for which you need results. You can also
+                        Enter positive pressure values for which you need results. You
+                        can also
                         copy/paste a
-                        comma-separated list of values with a comma after every number. Use dot
+                        comma-separated list of values with a comma after every number.
+                        Use dot
                         as decimal separator.
                         The maximum number of values is
                         {{ limitsToFunctionKwargs.pressures.maxlen }}.
@@ -243,17 +255,22 @@ function pressureValidator(str) {
             <div class="row">
                 <div class="col-12">
                     <small>
-                        The calculation will stop if converged or after this maximum number of
+                        The calculation will stop if converged or after this maximum
+                        number of
                         iterations. Data points
-                        that are not converged are shown translucent in the resulting plots. The
+                        that are not converged are shown translucent in the resulting
+                        plots. The
                         maximum number of
-                        iterations is limited to {{ limitsToFunctionKwargs.maxiter.max }}.
+                        iterations is limited to {{
+                            limitsToFunctionKwargs.maxiter.max
+                        }}.
                     </small>
                 </div>
             </div>
 
             <div class="alert alert-warning mt-2" v-if="_recalculateWarning">
-                Some of the input parameters were invalid. We have updated those parameters for you.
+                Some of the input parameters were invalid. We have updated those
+                parameters for you.
                 Please double-check
                 the parameters and click <b>Run calculation</b> when ready.
             </div>
