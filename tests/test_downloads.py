@@ -43,3 +43,6 @@ def test_download_contact_analyses_to_zip(api_rf, example_contact_analysis):
 
     readme_content = archive.read("README.txt")
     assert b"Accessing the CSV file" in readme_content
+
+    nc_content = archive.read(f"{example_contact_analysis.subject.name}/result-step-2.nc")
+    assert nc_content == b"test content"

@@ -55,7 +55,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
 
     for k in range(4):
         fn = f"step-{k}/nc/results.nc"
-        analysis.folder.save_file(fn, "der", ContentFile(f"test content for step {k}"))
+        analysis.folder.save_file(fn, "der", ContentFile(b"test content"))
 
     return analysis
 
