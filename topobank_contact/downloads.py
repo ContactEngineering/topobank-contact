@@ -1,12 +1,12 @@
 import io
-import zipfile
 import os.path
+import zipfile
 
 import pandas as pd
 from django.http import HttpResponse
-
 from topobank.analysis.downloads import analysis_header_for_txt_file
 from topobank.analysis.registry import register_download_function
+
 from .functions import VIZ_CONTACT_MECHANICS
 
 
@@ -69,22 +69,24 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
         # Add nc files from storage
         #
         for manifest in analysis.folder:
-            if manifest.filename.startswith("step-"):
-                prefix, suffix = manifest.filename.split("/", maxsplit=1)
-                step = int(prefix[5:])
+            filename_in_zip = None
+            finfo = manifest.filename.split("/")
+            if len(finfo) == 1 and finfo[0] == "result.json":
+                filename_in_zip = os.path.join(zip_dir, finfo[0])
+            elif len(finfo) > 1 and finfo[1] == "nc" and finfo[-1] == "results.nc":
+                step = int(finfo[0][5:])
                 filename_in_zip = os.path.join(zip_dir, f"result-step-{step}.nc")
-            else:
-                filename_in_zip = os.path.join(zip_dir, manifest.filename)
 
-            try:
-                zf.writestr(filename_in_zip, manifest.file.read())
-            except Exception as exc:
-                zf.writestr(
-                    "errors-{}.txt".format(filename_in_zip),
-                    "Cannot save file {} in ZIP, reason: {}".format(
-                        filename_in_zip, str(exc)
-                    ),
-                )
+            if filename_in_zip is not None:
+                try:
+                    zf.writestr(filename_in_zip, manifest.file.read())
+                except Exception as exc:
+                    zf.writestr(
+                        "errors-{}.txt".format(filename_in_zip),
+                        "Cannot save file {} in ZIP, reason: {}".format(
+                            filename_in_zip, str(exc)
+                        ),
+                    )
 
         #
         # Add a file with version information

@@ -4,11 +4,11 @@ from topobank.analysis.models import AnalysisFunction
 from topobank.testing.factories import (OrganizationFactory, SurfaceFactory,
                                         Topography2DFactory,
                                         TopographyAnalysisFactory, UserFactory)
-from topobank.testing.fixtures import api_rf  # noqa: F401
 from topobank.testing.fixtures import handle_usage_statistics  # noqa: F401
 from topobank.testing.fixtures import simple_linear_2d_topography  # noqa: F401
 from topobank.testing.fixtures import sync_analysis_functions  # noqa: F401
 from topobank.testing.fixtures import test_analysis_function  # noqa: F401
+from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
 
 
 @pytest.mark.django_db
