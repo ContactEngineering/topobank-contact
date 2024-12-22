@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.5.0 (2024-12-22)
+
+- MAINT: Bumped dependency to ContactMechanics 1.6.0
+
 ## 1.4.2 (2024-11-27)
 
 - BUG: API key is `substrate`, not `substrate_str`
