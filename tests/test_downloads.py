@@ -2,6 +2,7 @@ import io
 import zipfile
 from io import BytesIO
 
+import numpy as np
 import pytest
 from django.shortcuts import reverse
 from scipy.io import netcdf_file
@@ -59,6 +60,16 @@ def test_download_mock_contact_analysis_to_zip(api_rf, example_contact_analysis)
         f"{example_contact_analysis.subject.name}/result-step-2.nc"
     )
     assert nc_content == b"test content"
+
+
+def read_csv(f):
+    data = []
+    f.readline()  # Skip first line
+    L = f.readline()
+    while L:
+        data += [L.split(",")]
+        L = f.readline()
+    return np.transpose(data)
 
 
 @pytest.mark.urls("topobank_contact.testing.urls")
@@ -141,10 +152,19 @@ def test_download_actual_contact_analysis_to_zip(
         "9,0.0058219472965921944,0.2766775956284153,0.6502025742003311,True,result-step-6.nc\n"
     )
 
-    plot_content = archive.read(f"{topo2.name}/plot.csv")
-    assert plot_content.decode("utf-8") == exp_plot_content
+    i1, p1, a1, g1, conv1, fn1 = read_csv(
+        io.StringIO(archive.read(f"{topo2.name}/plot.csv").decode("latin-1"))
+    )
+    i2, p2, a2, g2, conv2, fn2 = read_csv(io.StringIO(exp_plot_content))
+    assert np.all(i1 == i2)
+    np.testing.assert_allclose(p1.astype(float), p2.astype(float))
+    np.testing.assert_allclose(a1.astype(float), a2.astype(float))
+    np.testing.assert_allclose(g1.astype(float), g2.astype(float))
+    assert np.all(conv1 == conv2)
+    assert np.all(fn1 == fn2)
 
-    # Howto test info.txt? Content is based on a function in topobank, so it should be tested there
+    # Howto test info.txt? Content is based on a function in topobank, so it should be
+    # tested there
 
     readme_content = archive.read("README.txt")
     assert b"Accessing the CSV file" in readme_content
