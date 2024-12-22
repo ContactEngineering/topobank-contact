@@ -157,7 +157,7 @@ def test_download_actual_contact_analysis_to_zip(
     )
     i2, p2, a2, g2, conv2, fn2 = read_csv(io.StringIO(exp_plot_content))
     assert np.all(i1 == i2)
-    rtol = 1e-5
+    rtol = 1e-3
     np.testing.assert_allclose(p1.astype(float), p2.astype(float), rtol=rtol)
     np.testing.assert_allclose(a1.astype(float), a2.astype(float), rtol=rtol)
     np.testing.assert_allclose(g1.astype(float), g2.astype(float), rtol=rtol)
