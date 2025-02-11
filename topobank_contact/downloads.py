@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from topobank.analysis.downloads import analysis_header_for_txt_file
 from topobank.analysis.registry import register_download_function
 
-from .functions import VIZ_CONTACT_MECHANICS
+from .workflows import VIZ_CONTACT_MECHANICS
 
 
 @register_download_function(VIZ_CONTACT_MECHANICS, "results", "zip")

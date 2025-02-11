@@ -18,8 +18,8 @@ from SurfaceTopography.Support.UnitConversion import (
     get_unit_conversion_factor, suggest_length_unit_for_data)
 from SurfaceTopography.Uniform.GeometryAnalysis import (
     assign_patch_numbers_area, patch_areas)
-from topobank.analysis.functions import AnalysisImplementation
 from topobank.analysis.registry import register_implementation
+from topobank.analysis.workflows import WorkflowImplementation
 from topobank.manager.models import Topography
 from topobank.manager.utils import render_deepzoom
 from topobank.supplib.json import ExtendedJSONEncoder
@@ -255,7 +255,7 @@ def _contact_at_given_load(
     )
 
 
-class BoundaryElementMethod(AnalysisImplementation):
+class BoundaryElementMethod(WorkflowImplementation):
     class Meta:
         name = "topobank_contact.boundary_element_method"
         display_name = "Contact mechanics"
@@ -265,7 +265,7 @@ class BoundaryElementMethod(AnalysisImplementation):
             Topography: "topography_implementation",
         }
 
-    class Parameters(AnalysisImplementation.Parameters):
+    class Parameters(WorkflowImplementation.Parameters):
         # Nonperiodic or periodic boundary conditions; if None, choose from topography's
         # 'is_periodic' flag
         substrate: Union[Literal["nonperiodic", "periodic"], None] = "nonperiodic"

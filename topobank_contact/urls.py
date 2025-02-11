@@ -1,7 +1,7 @@
 from django.urls import path
 
-from .functions import APP_NAME, VIZ_CONTACT_MECHANICS
 from .views import contact_mechanics_card_view
+from .workflows import APP_NAME, VIZ_CONTACT_MECHANICS
 
 # App name determines the internal name space, e.g. example can be references
 # as 'contact:example'

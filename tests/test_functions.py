@@ -2,16 +2,11 @@ import numpy as np
 import pytest
 from SurfaceTopography import NonuniformLineScan as STNonuniformLineScan
 from topobank.testing.factories import FolderFactory
-from topobank.testing.utils import (
-    DummyProgressRecorder,
-    FakeTopographyModel,
-    AnalysisResultMock,
-)
+from topobank.testing.utils import (AnalysisResultMock, DummyProgressRecorder,
+                                    FakeTopographyModel)
 
-from topobank_contact.functions import (
-    BoundaryElementMethod,
-    IncompatibleTopographyException,
-)
+from topobank_contact.workflows import (BoundaryElementMethod,
+                                        IncompatibleTopographyException)
 
 
 def test_contact_mechanics_incompatible_topography():

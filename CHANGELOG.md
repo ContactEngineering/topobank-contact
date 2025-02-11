@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.6.0 (2025-02-11)
+
+- MAINT: Updated for API changes in topobank v1.55.0
+
 ## 1.5.0 (2024-12-22)
 
 - MAINT: Bumped dependency to ContactMechanics 1.6.0
