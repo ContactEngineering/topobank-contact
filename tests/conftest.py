@@ -16,12 +16,13 @@ from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
 def example_contact_analysis(test_analysis_function, user_with_plugin, settings):  # noqa: F811
     settings.DELETE_EXISTING_FILES = True
 
-    func = AnalysisFunction.objects.get(name="Contact mechanics")
+    func = AnalysisFunction.objects.get(name="topobank_contact.boundary_element_method")
 
     storage_prefix = "test_contact_mechanics/"
 
     result = dict(
-        name="Contact mechanics",
+        name="topobank_contact.boundary_element_method",
+        display_name="Contact mechanics",
         area_per_pt=0.1,
         maxiter=100,
         min_pentol=0.01,

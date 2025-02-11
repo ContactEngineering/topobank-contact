@@ -609,7 +609,8 @@ class BoundaryElementMethod(WorkflowImplementation):
         sort_order = np.argsort(mean_pressure)
 
         return dict(
-            name="Contact mechanics",
+            name="topobank_contact.boundary_element_method",
+            display_name="Contact mechanics",
             area_per_pt=substrate.area_per_pt,
             maxiter=maxiter,
             min_pentol=min_pentol,
