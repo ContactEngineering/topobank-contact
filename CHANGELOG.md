@@ -3,6 +3,7 @@
 ## 1.6.0 (2025-02-11)
 
 - MAINT: Updated for API changes in topobank v1.55.0
+- BUG: Fixed switching number of steps vs explicit pressures
 
 ## 1.5.0 (2024-12-22)
 

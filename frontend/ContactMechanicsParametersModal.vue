@@ -50,7 +50,7 @@ function validateParameters(event) {
         }
     }
 
-    if (_pressureSelection.value == "automatic") {
+    if (_pressureSelection.value === "automatic") {
         if (_nbSteps.value < props.limitsToFunctionKwargs.nsteps.min) {
             _nbSteps.value = props.limitsToFunctionKwargs.nsteps.min;
             _recalculateWarning.value = true;
@@ -96,8 +96,8 @@ function validateParameters(event) {
     kwargs.value = {
         substrate: _periodicity.value,
         hardness: _enableHardness.value ? parseFloat(_hardness.value) : null,
-        nsteps: _pressureSelection.value == "automatic" ? parseInt(_nbSteps.value) : null,
-        pressures: _pressureSelection.value == "manual" ? _pressures.value : null,
+        nsteps: _pressureSelection.value === "automatic" ? parseInt(_nbSteps.value) : null,
+        pressures: _pressureSelection.value !== "automatic" ? _pressures.value : null,
         maxiter: parseInt(_maxNbIter.value),
     }
 
@@ -178,8 +178,8 @@ function pressureValidator(str) {
             <BInputGroup>
                 <BInputGroupText>
                     <BFormRadio value="automatic"
-                                checked="checked"
-                                v-model="_pressureSelection"></BFormRadio>
+                                v-model="_pressureSelection">
+                    </BFormRadio>
                 </BInputGroupText>
                 <BInputGroupText>
                     Number of steps
@@ -189,7 +189,7 @@ function pressureValidator(str) {
                             :max="limitsToFunctionKwargs.nsteps.max"
                             step="1"
                             v-model="_nbSteps"
-                            :disabled="_pressureSelection != 'automatic'">
+                            :disabled="_pressureSelection !== 'automatic'">
                 </BFormInput>
             </BInputGroup>
             <div class="row mb-3">
@@ -221,7 +221,7 @@ function pressureValidator(str) {
                            :tag-validator="pressureValidator"
                            invalid-tag-text="Pressure value must be a positive number"
                            duplicate-tag-text="Duplicate pressure value"
-                           :disabled="_pressureSelection != 'manual'">
+                           :disabled="_pressureSelection === 'automatic'">
                 </BFormTags>
             </BInputGroup>
             <div class="row mb-3">
