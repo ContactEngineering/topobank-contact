@@ -1,19 +1,21 @@
 <script setup>
 
 import axios from "axios";
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 
-import {BDropdownDivider, BDropdownItem, BSpinner, BTab, BTabs, useToastController} from "bootstrap-vue-next";
+import { BDropdownDivider, BDropdownItem, BSpinner, BTab, BTabs, useToastController } from "bootstrap-vue-next";
 
-import BokehPlot from 'topobank/components/BokehPlot.vue';
-import ContactMechanicsParametersModal from 'topobank_contact/ContactMechanicsParametersModal.vue';
-import DeepZoomImage from 'topobank/components/DeepZoomImage.vue';
+import { subjectsToBase64 } from "../../ce-ui/frontend/utils/api";
+
+import BokehPlot from "topobank/components/BokehPlot.vue";
+import ContactMechanicsParametersModal from "topobank_contact/ContactMechanicsParametersModal.vue";
+import DeepZoomImage from "topobank/components/DeepZoomImage.vue";
 import AnalysisCard from "topobank/analysis/AnalysisCard.vue";
 
 const props = defineProps({
     apiUrl: {
         type: String,
-        default: '/plugins/contact/card/contact-mechanics'
+        default: "/plugins/contact/card/contact-mechanics"
     },
     detailUrl: {
         type: String,
@@ -23,14 +25,21 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
-    functionId: Number,
-    functionName: String,
-    subjects: String,
-    txtDownloadUrl: String,
-    xlsxDownloadUrl: String
+    functionId: {
+        type: Number,
+        required: true
+    },
+    functionName: {
+        type: String,
+        required: true
+    },
+    subjects: {
+        type: Object,
+        required: true
+    }
 });
 
-const {show} = useToastController();
+const { show } = useToastController();
 
 const _analyses = ref(null);
 let _analysesById = {};
@@ -54,41 +63,47 @@ onMounted(() => {
 function updateCard() {
     /* Fetch JSON describing the card */
     let functionKwargsBase64 = btoa(JSON.stringify(_functionKwargs.value));
-    axios.get(`${props.apiUrl}/${props.functionId}?subjects=${props.subjects}&function_kwargs=${functionKwargsBase64}`).then(response => {
-        _analyses.value = response.data.analyses;
-        _analysesById = {};
-        for (const analysis of response.data.analyses) {
-            _analysesById[analysis.id] = analysis;
-        }
-        _dois.value = response.data.dois;
-        if (_functionKwargs.value === null) {
-            _functionKwargs.value = response.data.unique_kwargs;
-        } else {
-            _functionKwargs.value = {
-                ..._functionKwargs.value,
-                ...response.data.unique_kwargs  // override since the server may report changes
-            };
-        }
-        _limitsToFunctionKwargs.value = response.data.limitsToFunctionKwargs;
-        _api.value = response.data.api;
-
-        _dataSources.value = response.data.plotConfiguration?.dataSources;
-        _outputBackend.value = response.data.plotConfiguration?.outputBackend;
-    }).catch(error => {
-        show?.({
-            props: {
-                title: "Error fetching analysis results",
-                body: error.message,
-                variant: 'danger'
+    _nbPendingAjaxRequests.value++;
+    axios.get(`${props.apiUrl}/${props.functionId}?subjects=${subjectsToBase64(props.subjects)}&function_kwargs=${functionKwargsBase64}`)
+        .then(response => {
+            _analyses.value = response.data.analyses;
+            _analysesById = {};
+            for (const analysis of response.data.analyses) {
+                _analysesById[analysis.id] = analysis;
             }
+            _dois.value = response.data.dois;
+            if (_functionKwargs.value === null) {
+                _functionKwargs.value = response.data.unique_kwargs;
+            } else {
+                _functionKwargs.value = {
+                    ..._functionKwargs.value,
+                    ...response.data.unique_kwargs  // override since the server may report changes
+                };
+            }
+            _limitsToFunctionKwargs.value = response.data.limitsToFunctionKwargs;
+            _api.value = response.data.api;
+
+            _dataSources.value = response.data.plotConfiguration?.dataSources;
+            _outputBackend.value = response.data.plotConfiguration?.outputBackend;
+        })
+        .catch(error => {
+            show?.({
+                props: {
+                    title: "Error fetching contact mechanics analysis results",
+                    body: error.message,
+                    variant: "danger"
+                }
+            });
+        })
+        .finally(() => {
+            _nbPendingAjaxRequests.value--;
         });
-    });
 }
 
 function onSelected(obj, data) {
     const name = data.source.name;
     const path = data.source.data.dataPath[data.source.selected.indices[0]];
-    const analysisId = parseInt(name.split('-')[1]);
+    const analysisId = parseInt(name.split("-")[1]);
     const folder = _analysesById[analysisId].folder;
     _isLoading.value = true;
     axios.get(folder).then(response => {
@@ -105,7 +120,7 @@ function onSelected(obj, data) {
             props: {
                 title: "Error analysis results",
                 body: error.message,
-                variant: 'danger'
+                variant: "danger"
             }
         });
     });
@@ -136,11 +151,11 @@ const contactMechanicsPlots = computed(() => {
         yAxisLabel: "$$p/E^*$$",
         xAxisType: "linear",
         yAxisType: "log"
-    }]
+    }];
 });
 
 const contactMechanicsCategories = computed(() => {
-    return [{key: "subjectName", title: "Measurements"}];
+    return [{ key: "subjectName", title: "Measurements" }];
 });
 
 const pressureDistributionPlot = computed(() => {
@@ -196,12 +211,12 @@ const analysisIds = computed(() => {
                   :dois="_dois"
                   :enlarged="enlarged"
                   :functionId="functionId"
-                  :subjects="subjects"
                   :showLoadingSpinner="_nbPendingAjaxRequests > 0"
+                  :subjects="subjects"
                   title="Contact mechanics"
                   @allTasksFinished="updateCard"
-                  @someTasksFinished="updateCard"
-                  @refreshButtonClicked="updateCard">
+                  @refreshButtonClicked="updateCard"
+                  @someTasksFinished="updateCard">
         <template #dropdowns>
             <BDropdownDivider></BDropdownDivider>
             <BDropdownItem @click="_parametersVisible = true">
@@ -218,14 +233,14 @@ const analysisIds = computed(() => {
         <div class="row">
             <div :class="{ 'col-6': enlarged, 'col-12': !enlarged }">
                 <BokehPlot
-                    :plots="contactMechanicsPlots"
+                    ref="plot"
                     :categories="contactMechanicsCategories"
                     :data-sources="_dataSources"
-                    :selectable="enlarged"
-                    @selected="onSelected"
                     :options-widgets="['layout', 'legend', 'lineWidth', 'symbolSize']"
                     :output-backend="_outputBackend"
-                    ref="plot">
+                    :plots="contactMechanicsPlots"
+                    :selectable="enlarged"
+                    @selected="onSelected">
                 </BokehPlot>
             </div>
 
@@ -237,16 +252,16 @@ const analysisIds = computed(() => {
                 <div v-if="_isLoading"
                      class="d-flex justify-content-center mt-5">
                     <div class="flex-column text-center">
-                        <b-spinner/>
+                        <b-spinner />
                         <p>Loading...</p>
                     </div>
                 </div>
                 <BTabs v-if="_selection != null && !_isLoading">
                     <BTab title="Contact geometry">
                         <DeepZoomImage v-if="_selection != null"
+                                       ref="contactingPoints"
                                        :folder-url="_selection.folder"
-                                       :prefix="`${_selection.dataPath}/dzi/contacting-points/`"
-                                       ref="contactingPoints">
+                                       :prefix="`${_selection.dataPath}/dzi/contacting-points/`">
                         </DeepZoomImage>
                         <div v-if="_selection != null" class="pull-right">
                             <a class="btn btn-default btn-block btn-lg mt-3"
@@ -257,10 +272,10 @@ const analysisIds = computed(() => {
                     </BTab>
                     <BTab title="Contact pressure">
                         <DeepZoomImage v-if="_selection != null"
-                                       :folder-url="_selection.folder"
-                                       :prefix="`${_selection.dataPath}/dzi/pressure/`"
+                                       ref="pressure"
                                        :colorbar="true"
-                                       ref="pressure">
+                                       :folder-url="_selection.folder"
+                                       :prefix="`${_selection.dataPath}/dzi/pressure/`">
                         </DeepZoomImage>
                         <div v-if="_selection != null" class="pull-right">
                             <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.pressure.download()">
@@ -270,10 +285,10 @@ const analysisIds = computed(() => {
                     </BTab>
                     <BTab title="Displacement">
                         <DeepZoomImage v-if="_selection != null"
-                                       :folder-url="_selection.folder"
-                                       :prefix="`${_selection.dataPath}/dzi/displacement/`"
+                                       ref="displacement"
                                        :colorbar="true"
-                                       ref="displacement">
+                                       :folder-url="_selection.folder"
+                                       :prefix="`${_selection.dataPath}/dzi/displacement/`">
                         </DeepZoomImage>
                         <div v-if="_selection != null" class="pull-right">
                             <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.displacement.download()">
@@ -283,10 +298,10 @@ const analysisIds = computed(() => {
                     </BTab>
                     <BTab title="Gap">
                         <DeepZoomImage v-if="_selection != null"
-                                       :folder-url="_selection.folder"
-                                       :prefix="`${_selection.dataPath}/dzi/gap/`"
+                                       ref="gap"
                                        :colorbar="true"
-                                       ref="gap">
+                                       :folder-url="_selection.folder"
+                                       :prefix="`${_selection.dataPath}/dzi/gap/`">
                         </DeepZoomImage>
                         <div v-if="_selection != null" class="pull-right">
                             <a class="btn btn-default btn-block btn-lg" v-on:click="$refs.gap.download()">
@@ -296,26 +311,26 @@ const analysisIds = computed(() => {
                     </BTab>
                     <BTab title="Pressure distribution">
                         <BokehPlot v-if="_selection != null"
-                                   :plots="pressureDistributionPlot"
                                    :data-sources="distributionDataSources"
                                    :options-widgets='["layout", "lineWidth", "symbolSize"]'
-                                   :output-backend="_outputBackend">
+                                   :output-backend="_outputBackend"
+                                   :plots="pressureDistributionPlot">
                         </BokehPlot>
                     </BTab>
                     <BTab title="Gap distribution">
                         <BokehPlot v-if="_selection != null"
-                                   :plots="gapDistributionPlot"
                                    :data-sources="distributionDataSources"
                                    :options-widgets='["layout", "lineWidth", "symbolSize"]'
-                                   :output-backend="_outputBackend">
+                                   :output-backend="_outputBackend"
+                                   :plots="gapDistributionPlot">
                         </BokehPlot>
                     </BTab>
                     <BTab title="Cluster area distribution">
                         <BokehPlot v-if="_selection != null"
-                                   :plots="clusterAreaDistributionPlot"
                                    :data-sources="distributionDataSources"
                                    :options-widgets='["layout", "lineWidth", "symbolSize"]'
-                                   :output-backend="_outputBackend">
+                                   :output-backend="_outputBackend"
+                                   :plots="clusterAreaDistributionPlot">
                         </BokehPlot>
                     </BTab>
                 </BTabs>
@@ -323,8 +338,8 @@ const analysisIds = computed(() => {
         </div>
     </AnalysisCard>
     <ContactMechanicsParametersModal v-if="_limitsToFunctionKwargs !== null && _functionKwargs !== null"
-                                     v-model:visible="_parametersVisible"
                                      v-model:kwargs="_functionKwargs"
+                                     v-model:visible="_parametersVisible"
                                      :limits-to-function-kwargs="_limitsToFunctionKwargs"
                                      @updateKwargs="updateCard">
     </ContactMechanicsParametersModal>
