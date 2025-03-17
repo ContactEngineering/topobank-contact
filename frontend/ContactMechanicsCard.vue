@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from "vue";
 
 import { BDropdownDivider, BDropdownItem, BSpinner, BTab, BTabs, useToastController } from "bootstrap-vue-next";
 
-import { subjectsToBase64 } from "../../ce-ui/frontend/utils/api";
+import { subjectsToBase64 } from "topobank/utils/api";
 
 import BokehPlot from "topobank/components/BokehPlot.vue";
 import ContactMechanicsParametersModal from "topobank_contact/ContactMechanicsParametersModal.vue";

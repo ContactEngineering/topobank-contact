@@ -3,8 +3,8 @@ from django.conf import settings
 from django.http import HttpResponseBadRequest
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from topobank.analysis.controller import AnalysisController
 from topobank.analysis.utils import filter_and_order_analyses
+from topobank.analysis.v1.controller import AnalysisController
 from topobank.files.serializers import ManifestSerializer
 from topobank.usage_stats.utils import increase_statistics_by_date_and_object
 from trackstats.models import Metric
