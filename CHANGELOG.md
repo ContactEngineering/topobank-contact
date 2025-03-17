@@ -3,6 +3,7 @@
 ## 1.7.0 (2025-03-17)
 
 - MAINT: Updated for API changes in topobank v1.57.0
+- MAINT: Moved all frontend code to ce-ui
 
 ## 1.6.0 (2025-02-11)
 
