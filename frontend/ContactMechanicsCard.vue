@@ -25,10 +25,6 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
-    functionId: {
-        type: Number,
-        required: true
-    },
     functionName: {
         type: String,
         required: true
@@ -64,7 +60,7 @@ function updateCard() {
     /* Fetch JSON describing the card */
     let functionKwargsBase64 = btoa(JSON.stringify(_functionKwargs.value));
     _nbPendingAjaxRequests.value++;
-    axios.get(`${props.apiUrl}/${props.functionId}?subjects=${subjectsToBase64(props.subjects)}&function_kwargs=${functionKwargsBase64}`)
+    axios.get(`${props.apiUrl}/${props.functionName}?subjects=${subjectsToBase64(props.subjects)}&function_kwargs=${functionKwargsBase64}`)
         .then(response => {
             _analyses.value = response.data.analyses;
             _analysesById = {};
@@ -210,7 +206,7 @@ const analysisIds = computed(() => {
                   :detailUrl="detailUrl"
                   :dois="_dois"
                   :enlarged="enlarged"
-                  :functionId="functionId"
+                  :functionName="functionName"
                   :showLoadingSpinner="_nbPendingAjaxRequests > 0"
                   :subjects="subjects"
                   title="Contact mechanics"
