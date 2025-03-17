@@ -390,9 +390,6 @@ class BoundaryElementMethod(WorkflowImplementation):
 
         half_space_kwargs = {}
 
-        print(topography.nb_grid_pts, type(topography.nb_grid_pts))
-        print(topography.physical_sizes, type(topography.physical_sizes))
-        print(half_space_kwargs)
         substrate = half_space_factory[substrate_str](
             topography.nb_grid_pts, 1.0, topography.physical_sizes, **half_space_kwargs
         )
