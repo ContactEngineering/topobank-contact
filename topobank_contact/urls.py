@@ -14,7 +14,7 @@ urlpatterns = [
     # * Return plot configuration for finished analyses
     # This is a post request because the request parameters are complex.
     path(
-        f'card/{VIZ_CONTACT_MECHANICS}/<int:function_id>',
+        f'card/{VIZ_CONTACT_MECHANICS}/<workflow>',
         view=contact_mechanics_card_view,
         name=f'card-{VIZ_CONTACT_MECHANICS}'
     ),

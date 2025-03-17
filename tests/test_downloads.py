@@ -90,7 +90,7 @@ def test_download_actual_contact_analysis_to_zip(
     with django_capture_on_commit_callbacks(execute=True) as callbacks:
         response = api_client.get(
             f"{reverse('analysis:result-list')}?subjects="
-            f"{subjects_to_base64([topo2])}&function_id={contact_mechanics.id}"
+            f"{subjects_to_base64([topo2])}&workflow={contact_mechanics.name}"
         )
         assert response.status_code == 200
     assert len(callbacks) == 1
@@ -101,7 +101,7 @@ def test_download_actual_contact_analysis_to_zip(
     with django_capture_on_commit_callbacks(execute=True) as callbacks:
         response = api_client.get(
             f"{reverse('analysis:result-list')}?subjects="
-            f"{subjects_to_base64([topo2])}&function_id={contact_mechanics.id}"
+            f"{subjects_to_base64([topo2])}&workflow={contact_mechanics.name}"
         )
         assert response.status_code == 200
     assert len(callbacks) == 0

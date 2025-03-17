@@ -13,8 +13,8 @@ def test_resolve_card_view(
     subjects = subjects_to_base64([example_contact_analysis.subject])
 
     request = api_rf.get(
-        f"/plugins/contact/card/contact-mechanics/{example_contact_analysis.function.id}",
-        {"function_id": example_contact_analysis.function.id, "subjects": subjects},
+        f"/plugins/contact/card/contact-mechanics/{example_contact_analysis.function.name}",
+        {"workflow": example_contact_analysis.function.name, "subjects": subjects},
     )
     request.user = example_contact_analysis.get_related_surfaces()[0].creator
     request.session = {}
