@@ -128,15 +128,26 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
     )
     force_xy = opt.jac
     displacement_xy = opt.x[: force_xy.shape[0], : force_xy.shape[1]]
-    mean_displacements = np.append(mean_displacements, [mean_displacement])
-    mean_gaps = np.append(
-        mean_gaps, [np.mean(displacement_xy) - middle - mean_displacement]
-    )
-    mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
-    mean_pressures = np.append(mean_pressures, [mean_load])
-    total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
-    total_contact_areas = np.append(total_contact_areas, [total_contact_area])
-    converged = np.append(converged, np.array([opt.success], dtype=bool))
+
+    # Use list append for efficiency, convert to arrays only when needed
+    if isinstance(mean_displacements, list):
+        mean_displacements.append(mean_displacement)
+        mean_gaps.append(np.mean(displacement_xy) - middle - mean_displacement)
+        mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
+        mean_pressures.append(mean_load)
+        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_areas.append(total_contact_area)
+        converged = np.append(converged, np.array([opt.success], dtype=bool))
+    else:
+        mean_displacements = np.append(mean_displacements, [mean_displacement])
+        mean_gaps = np.append(
+            mean_gaps, [np.mean(displacement_xy) - middle - mean_displacement]
+        )
+        mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
+        mean_pressures = np.append(mean_pressures, [mean_load])
+        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_areas = np.append(total_contact_areas, [total_contact_area])
+        converged = np.append(converged, np.array([opt.success], dtype=bool))
 
     area_per_pt = substrate.area_per_pt
     pressure_xy = force_xy / area_per_pt
@@ -228,13 +239,24 @@ def _contact_at_given_load(
     )
     force_xy = opt.jac
     displacement_xy = opt.x[: force_xy.shape[0], : force_xy.shape[1]]
-    mean_displacements = np.append(mean_displacements, [opt.offset])
-    mean_gaps = np.append(mean_gaps, [np.mean(displacement_xy) - middle - opt.offset])
-    mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
-    mean_pressures = np.append(mean_pressures, [mean_load])
-    total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
-    total_contact_areas = np.append(total_contact_areas, [total_contact_area])
-    converged = np.append(converged, np.array([opt.success], dtype=bool))
+
+    # Use list append for efficiency, convert to arrays only when needed
+    if isinstance(mean_displacements, list):
+        mean_displacements.append(opt.offset)
+        mean_gaps.append(np.mean(displacement_xy) - middle - opt.offset)
+        mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
+        mean_pressures.append(mean_load)
+        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_areas.append(total_contact_area)
+        converged = np.append(converged, np.array([opt.success], dtype=bool))
+    else:
+        mean_displacements = np.append(mean_displacements, [opt.offset])
+        mean_gaps = np.append(mean_gaps, [np.mean(displacement_xy) - middle - opt.offset])
+        mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
+        mean_pressures = np.append(mean_pressures, [mean_load])
+        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_areas = np.append(total_contact_areas, [total_contact_area])
+        converged = np.append(converged, np.array([opt.success], dtype=bool))
 
     area_per_pt = substrate.area_per_pt
     pressure_xy = force_xy / area_per_pt
