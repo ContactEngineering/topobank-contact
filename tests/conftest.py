@@ -1,6 +1,6 @@
 import pytest
 from django.core.files.base import ContentFile
-from topobank.analysis.models import AnalysisFunction
+from topobank.analysis.models import Workflow
 from topobank.testing.factories import (OrganizationFactory, SurfaceFactory,
                                         Topography2DFactory,
                                         TopographyAnalysisFactory, UserFactory)
@@ -16,7 +16,7 @@ from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
 def example_contact_analysis(test_analysis_function, user_with_plugin, settings):  # noqa: F811
     settings.DELETE_EXISTING_FILES = True
 
-    func = AnalysisFunction.objects.get(name="topobank_contact.boundary_element_method")
+    func = Workflow.objects.get(name="topobank_contact.boundary_element_method")
 
     storage_prefix = "test_contact_mechanics/"
 

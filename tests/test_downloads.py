@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from django.shortcuts import reverse
 from scipy.io import netcdf_file
-from topobank.analysis.models import AnalysisFunction
+from topobank.analysis.models import Workflow
 from topobank.manager.utils import subjects_to_base64
 
 from topobank_contact.downloads import \
@@ -86,7 +86,7 @@ def test_download_actual_contact_analysis_to_zip(
     m.return_value = True
 
     api_client.force_login(topo2.creator)
-    contact_mechanics = AnalysisFunction.objects.get(name="topobank_contact.boundary_element_method")
+    contact_mechanics = Workflow.objects.get(name="topobank_contact.boundary_element_method")
     with django_capture_on_commit_callbacks(execute=True) as callbacks:
         response = api_client.get(
             f"{reverse('analysis:result-list')}?subjects="
