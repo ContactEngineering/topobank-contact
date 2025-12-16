@@ -17,5 +17,9 @@ urlpatterns = [
         "analysis/",
         include("topobank.analysis.urls", namespace="analysis"),
     ),
+    path(
+        "users/",
+        include("topobank.users.urls", namespace="users"),
+    ),
     path("accounts/", include("allauth.urls")),
 ]
