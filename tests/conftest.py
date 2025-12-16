@@ -11,7 +11,6 @@ from topobank.testing.fixtures import test_analysis_function  # noqa: F401
 from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def example_contact_analysis(test_analysis_function, user_with_plugin, settings):  # noqa: F811
     settings.DELETE_EXISTING_FILES = True
@@ -61,7 +60,6 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
     return analysis
 
 
-@pytest.mark.django_db
 @pytest.fixture
 def user_with_plugin(sync_analysis_functions):  # noqa: F811
     org_name = "Test Organization"
