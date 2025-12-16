@@ -16,7 +16,7 @@ def test_resolve_card_view(
         f"/plugins/contact/card/contact-mechanics/{example_contact_analysis.function.name}",
         {"workflow": example_contact_analysis.function.name, "subjects": subjects},
     )
-    request.user = example_contact_analysis.get_related_surfaces()[0].creator
+    request.user = example_contact_analysis.get_related_surfaces()[0].created_by
     request.session = {}
 
     response = contact_mechanics_card_view(request)

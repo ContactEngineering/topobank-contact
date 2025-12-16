@@ -85,7 +85,7 @@ def test_download_actual_contact_analysis_to_zip(
     )
     m.return_value = True
 
-    api_client.force_login(topo2.creator)
+    api_client.force_login(topo2.created_by)
     contact_mechanics = Workflow.objects.get(name="topobank_contact.boundary_element_method")
     with django_capture_on_commit_callbacks(execute=True) as callbacks:
         response = api_client.get(
