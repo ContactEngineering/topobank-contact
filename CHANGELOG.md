@@ -1,5 +1,9 @@
 # Changelog for plugin *topobank-contact*
 
+## 1.8.0 (2025-12-16)
+
+- MAINT: Updated for API changes in topobank 1.66.0
+
 ## 1.7.1 (2025-08-19)
 
 - MAINT: Removed unused media root

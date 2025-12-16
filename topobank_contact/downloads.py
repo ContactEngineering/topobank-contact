@@ -80,7 +80,9 @@ def download_contact_mechanics_analyses_as_zip(request, analyses):
             if filename_in_zip is not None:
                 try:
                     zf.writestr(filename_in_zip, manifest.file.read())
-                except Exception as exc:
+                except (IOError, OSError, ValueError) as exc:
+                    # IOError/OSError: File system errors
+                    # ValueError: Invalid file content or ZIP entry
                     zf.writestr(
                         "errors-{}.txt".format(filename_in_zip),
                         "Cannot save file {} in ZIP, reason: {}".format(
