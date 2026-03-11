@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from topobank.analysis.utils import filter_and_order_analyses
 from topobank.analysis.v1.controller import AnalysisController
 from topobank.files.serializers import ManifestSerializer
-from topobank.usage_stats.utils import increase_statistics_by_date_and_object
-from trackstats.models import Metric
 
 
 @api_view(["GET"])
@@ -19,13 +17,6 @@ def contact_mechanics_card_view(request, **kwargs):
         return HttpResponseBadRequest(
             "Error validating kwargs for analysis function"
         )
-    #
-    # for statistics, count views per function
-    #
-    increase_statistics_by_date_and_object(
-        Metric.objects.ANALYSES_RESULTS_VIEW_COUNT, obj=controller.workflow
-    )
-
     #
     # Trigger missing analyses
     #

@@ -44,5 +44,3 @@ dependencies = [
 homepage = 'https://contact.engineering'
 repository = 'https://github.com/ContactEngineering/topobank-contact'
 
-[project.entry-points.'topobank.plugins']
-topobank_contact = 'topobank_contact.apps.ContactPluginConfig'
