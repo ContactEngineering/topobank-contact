@@ -38,6 +38,15 @@ dependencies = [
     'ContactMechanics>=1.6.0'
 ]
 
+[project.optional-dependencies]
+dev = [
+    'pytest',
+    'pytest-django>=4.4.0',
+    'pytest-mock',
+    'factory-boy',
+    'django-celery-results',
+]
+
 [project.urls]
 homepage = 'https://contact.engineering'
 repository = 'https://github.com/ContactEngineering/topobank-contact'
