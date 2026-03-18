@@ -27,7 +27,7 @@ jobs:
 
     env:
       USE_DOCKER: no
-      DJANGO_SETTINGS_MODULE: test_settings
+      DJANGO_SETTINGS_MODULE: contact_test_settings
       DATABASE_URL: postgres://postgres:secret@localhost/topobank-test
 
     strategy:
@@ -58,4 +58,4 @@ jobs:
         pip install -e .[dev]
 
     - name: Test
-      run: PYTHONPATH=/tmp/topobank pytest -v
+      run: PYTHONPATH=.:/tmp/topobank pytest -v

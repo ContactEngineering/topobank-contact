@@ -63,7 +63,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
 @pytest.fixture
 def user_with_plugin(sync_analysis_functions):  # noqa: F811
     org_name = "Test Organization"
-    org = OrganizationFactory(name=org_name, plugins_available="topobank_contact")
+    org = OrganizationFactory(name=org_name)
     user = UserFactory()
     user.groups.add(org.group)
     return user

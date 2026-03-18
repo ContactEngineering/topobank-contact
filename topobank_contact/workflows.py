@@ -540,7 +540,7 @@ class BoundaryElementMethod(WorkflowImplementation):
             #
 
             patch_ids = assign_patch_numbers_area(
-                contacting_points_xy, substrate_str == "periodic"
+                np.ascontiguousarray(contacting_points_xy.data), substrate_str == "periodic"
             )[1]
             cluster_areas = patch_areas(patch_ids) * substrate.area_per_pt
             hist, edges = np.histogram(cluster_areas, density=True, bins=50)
