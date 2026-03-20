@@ -5,7 +5,7 @@ from topobank_contact.views import contact_mechanics_card_view
 
 
 @pytest.mark.django_db
-@pytest.mark.urls("topobank_contact.testing.urls")
+@pytest.mark.urls("test_urls")
 @pytest.mark.parametrize("template_flavor", ["list", "detail"])
 def test_resolve_card_view(
     api_rf, example_contact_analysis, template_flavor, handle_usage_statistics
