@@ -6,16 +6,16 @@ from topobank.testing.factories import (OrganizationFactory, SurfaceFactory,
                                         TopographyAnalysisFactory, UserFactory)
 from topobank.testing.fixtures import handle_usage_statistics  # noqa: F401
 from topobank.testing.fixtures import simple_linear_2d_topography  # noqa: F401
-from topobank.testing.fixtures import sync_analysis_functions  # noqa: F401
-from topobank.testing.fixtures import test_analysis_function  # noqa: F401
+from topobank.testing.fixtures import sync_workflows  # noqa: F401
+from topobank.testing.fixtures import test_workflow  # noqa: F401
 from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
 
 
 @pytest.fixture
-def example_contact_analysis(test_analysis_function, user_with_plugin, settings):  # noqa: F811
+def example_contact_analysis(test_workflow, user_with_plugin, settings):  # noqa: F811
     settings.DELETE_EXISTING_FILES = True
 
-    func = Workflow.objects.get(name="topobank_contact.boundary_element_method")
+    func = Workflow(name="topobank_contact.boundary_element_method")
 
     storage_prefix = "test_contact_mechanics/"
 
@@ -50,7 +50,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
 
     # now the following analysis should be linked to a user who is allowed to use this plugin
     analysis = TopographyAnalysisFactory(
-        function=func, result=result, subject_topography=topo
+        workflow_name=func.name, result=result, subject_topography=topo
     )
 
     for k in range(4):
@@ -61,7 +61,7 @@ def example_contact_analysis(test_analysis_function, user_with_plugin, settings)
 
 
 @pytest.fixture
-def user_with_plugin(sync_analysis_functions):  # noqa: F811
+def user_with_plugin(sync_workflows):  # noqa: F811
     org_name = "Test Organization"
     org = OrganizationFactory(name=org_name)
     user = UserFactory()

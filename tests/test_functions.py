@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from SurfaceTopography import NonuniformLineScan as STNonuniformLineScan
-from topobank.testing.factories import FolderFactory
+from topobank.testing.factories import ManifestSetFactory
 from topobank.testing.utils import (AnalysisResultMock, DummyProgressRecorder,
                                     FakeTopographyModel)
 
@@ -17,7 +17,7 @@ def test_contact_mechanics_incompatible_topography():
 
     with pytest.raises(IncompatibleTopographyException):
         BoundaryElementMethod().topography_implementation(
-            AnalysisResultMock(topography, folder=FolderFactory())
+            AnalysisResultMock(topography, folder=ManifestSetFactory())
         )
 
 
@@ -29,7 +29,7 @@ def test_contact_mechanics_whether_given_pressures_in_result(
     result = BoundaryElementMethod(
         nsteps=None, pressures=given_pressures
     ).topography_implementation(
-        AnalysisResultMock(topography, folder=FolderFactory()),
+        AnalysisResultMock(topography, folder=ManifestSetFactory()),
         progress_recorder=DummyProgressRecorder(),
     )
 
@@ -53,7 +53,7 @@ def test_exception_topography_too_large_for_contact_mechanics(
 
     with pytest.raises(IncompatibleTopographyException):
         BoundaryElementMethod().topography_implementation(
-            AnalysisResultMock(topo, folder=FolderFactory())
+            AnalysisResultMock(topo, folder=ManifestSetFactory())
         )
 
 
@@ -75,7 +75,7 @@ def test_alert_if_topographys_periodicity_does_not_match(
     result = BoundaryElementMethod(
         substrate=substrate,
     ).topography_implementation(
-        AnalysisResultMock(topo, folder=FolderFactory()),
+        AnalysisResultMock(topo, folder=ManifestSetFactory()),
         progress_recorder=DummyProgressRecorder(),
     )
 
