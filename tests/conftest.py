@@ -6,9 +6,14 @@ from topobank.testing.factories import (OrganizationFactory, SurfaceFactory,
                                         TopographyAnalysisFactory, UserFactory)
 from topobank.testing.fixtures import handle_usage_statistics  # noqa: F401
 from topobank.testing.fixtures import simple_linear_2d_topography  # noqa: F401
-from topobank.testing.fixtures import sync_workflows  # noqa: F401
 from topobank.testing.fixtures import test_workflow  # noqa: F401
 from topobank.testing.fixtures import api_rf, two_topos  # noqa: F401
+
+
+@pytest.fixture(autouse=True)
+def _enable_db_access_for_all_tests(db):
+    """Restore the implicit database access previously provided by the removed
+    autouse ``sync_workflows`` fixture in ``topobank.testing.fixtures``."""
 
 
 @pytest.fixture
@@ -61,7 +66,7 @@ def example_contact_analysis(test_workflow, user_with_plugin, settings):  # noqa
 
 
 @pytest.fixture
-def user_with_plugin(sync_workflows):  # noqa: F811
+def user_with_plugin(db):
     org_name = "Test Organization"
     org = OrganizationFactory(name=org_name)
     user = UserFactory()
