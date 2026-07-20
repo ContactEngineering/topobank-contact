@@ -5,6 +5,7 @@ from typing import Literal, Union
 
 import numpy as np
 import xarray as xr
+from muTimer import Timer
 from ContactMechanics import (FreeFFTElasticHalfSpace,
                               PeriodicFFTElasticHalfSpace)
 from ContactMechanics.PlasticSystemSpecialisations import \
@@ -302,8 +303,11 @@ class BoundaryElementMethod(WorkflowImplementation):
         maxiter: int = 100
 
     def topography_implementation(
-        self, analysis, progress_recorder=None
+        self, analysis, progress_recorder=None, timer=None
     ):
+        if timer is None:
+            timer = Timer()
+
         substrate_str = self.kwargs.substrate
         hardness = self.kwargs.hardness
         nsteps = self.kwargs.nsteps
@@ -330,7 +334,8 @@ class BoundaryElementMethod(WorkflowImplementation):
             )
 
         # Get low level topography from SurfaceTopography model
-        topography = topography.topography()
+        with timer("read topography"):
+            topography = topography.topography()
 
         if topography.dim == 1:
             raise IncompatibleTopographyException(
@@ -440,35 +445,37 @@ class BoundaryElementMethod(WorkflowImplementation):
         history = None
         for i in range(nsteps):
             if pressures is None:
-                (
-                    displacement_xy,
-                    gap_xy,
-                    pressure_xy,
-                    contacting_points_xy,
-                    mean_displacement,
-                    mean_pressure,
-                    total_contact_area,
-                    history,
-                ) = _next_contact_step(
-                    system, history=history, pentol=pentol, maxiter=maxiter
-                )
+                with timer("contact step"):
+                    (
+                        displacement_xy,
+                        gap_xy,
+                        pressure_xy,
+                        contacting_points_xy,
+                        mean_displacement,
+                        mean_pressure,
+                        total_contact_area,
+                        history,
+                    ) = _next_contact_step(
+                        system, history=history, pentol=pentol, maxiter=maxiter
+                    )
             else:
-                (
-                    displacement_xy,
-                    gap_xy,
-                    pressure_xy,
-                    contacting_points_xy,
-                    mean_displacement,
-                    mean_pressure,
-                    total_contact_area,
-                    history,
-                ) = _contact_at_given_load(
-                    system,
-                    pressures[i] * force_conv,
-                    history=history,
-                    pentol=pentol,
-                    maxiter=maxiter,
-                )
+                with timer("contact step"):
+                    (
+                        displacement_xy,
+                        gap_xy,
+                        pressure_xy,
+                        contacting_points_xy,
+                        mean_displacement,
+                        mean_pressure,
+                        total_contact_area,
+                        history,
+                    ) = _contact_at_given_load(
+                        system,
+                        pressures[i] * force_conv,
+                        history=history,
+                        pentol=pentol,
+                        maxiter=maxiter,
+                    )
 
             #
             # Save displacement_xy, gap_xy, pressure_xy and contacting_points_xy to a NetCDF file
@@ -500,7 +507,9 @@ class BoundaryElementMethod(WorkflowImplementation):
 
             storage_path = f"step-{i}"
             data_paths.append(storage_path)
-            with tempfile.NamedTemporaryFile(prefix="analysis-") as tmpfile:
+            with timer("save results"), tempfile.NamedTemporaryFile(
+                prefix="analysis-"
+            ) as tmpfile:
                 dataset.to_netcdf(tmpfile.name, format=netcdf_format)
                 tmpfile.seek(0)
                 folder.save_file(f"{storage_path}/nc/results.nc", "der", File(tmpfile))
