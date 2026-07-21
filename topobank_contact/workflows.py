@@ -320,8 +320,7 @@ class BoundaryElementMethod(WorkflowImplementation):
         # Check whether function is called with the right substrate_str and issue a warning if not
         alerts = []  # list of dicts with keys 'alert_class', 'message'
         if topography.is_periodic != (substrate_str == "periodic"):
-            alert_link = f'<a class="alert-link" href="{topography.get_absolute_url()}">{topography.name}</a>'
-            alert_message = f"Measurement {alert_link} is "
+            alert_message = f"Measurement {topography.name} is "
             if topography.is_periodic:
                 alert_message += (
                     "periodic, but the analysis is configured for free boundaries."
