@@ -10,6 +10,16 @@ This plugin adds the following analysis function to Topobank:
 
 For more information, see our `paper`_.
 
+Documentation
+-------------
+
+- `Conventions <docs/conventions.md>`_ — geometry and sign conventions,
+  x/y orientation, definition of the contact modulus E*, units, and how
+  to treat the contact of two rough surfaces (composite roughness).
+- `Example script <docs/examples/plot_contact_step.py>`_ — reads a
+  ``results.nc`` file from the ZIP download and produces correctly
+  labeled plots.
+
 Installation
 ------------
 

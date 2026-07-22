@@ -1,4 +1,5 @@
 import numpy as np
+import pydantic
 import pytest
 from SurfaceTopography import NonuniformLineScan as STNonuniformLineScan
 from SurfaceTopography import Topography as STTopography
@@ -85,6 +86,45 @@ def test_contact_mechanics_step_file_annotations(simple_linear_2d_topography):
     assert dataset.attrs["total_contact_area"] == pytest.approx(
         dataset.contacting_points.data.sum() / nb_pts
     )
+
+
+def test_contact_mechanics_physical_units(simple_linear_2d_topography):
+    topography = FakeTopographyModel(simple_linear_2d_topography)
+    folder = ManifestSetFactory()
+    result = BoundaryElementMethod(
+        nsteps=None,
+        pressures=[1e-2],
+        elastic_modulus=250.0,
+        elastic_modulus_unit="GPa",
+    ).topography_implementation(
+        AnalysisResultMock(topography, folder=folder),
+        progress_recorder=DummyProgressRecorder(),
+    )
+
+    # The physical value of E* is passed through to the analysis result
+    # and the netCDF attributes (issue #26)
+    assert result["elastic_modulus"] == pytest.approx(250.0)
+    assert result["elastic_modulus_unit"] == "GPa"
+
+    dataset = folder.read_xarray("step-0/nc/results.nc")
+    assert dataset.attrs["elastic_modulus"] == pytest.approx(250.0)
+    assert dataset.attrs["elastic_modulus_unit"] == "GPa"
+    # The stored fields remain in units of E*
+    assert dataset.pressure.attrs["units"] == "E*"
+    assert dataset.attrs["mean_pressure"] == pytest.approx(1e-2)
+
+    # The pressure distribution is rendered in physical units
+    distributions = folder.read_json("step-0/json/distributions.json")
+    assert distributions["pressureUnit"] == "GPa"
+    assert distributions["pressureProbabilityDensityUnit"] == "GPa⁻¹"
+    # Pressures extend up to the order of the physical mean pressure,
+    # i.e. values are scaled by E*
+    assert max(distributions["pressure"]) > 1e-2 * 250.0
+
+
+def test_contact_mechanics_rejects_nonpositive_elastic_modulus():
+    with pytest.raises(pydantic.ValidationError):
+        BoundaryElementMethod(elastic_modulus=-1.0)
 
 
 def test_contact_mechanics_reports_forces_and_scan_area(
