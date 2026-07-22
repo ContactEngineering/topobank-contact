@@ -39,6 +39,26 @@ class IncompatibleTopographyException(RuntimeError):
     pass
 
 
+def _extract_contacting_points(opt, force_xy):
+    """
+    Determine the map of contacting points from an optimization result.
+
+    The constrained optimizers report the set of points where the contact
+    constraint is active ('active_set'), which is more accurate than
+    thresholding the force field. The active set is reported on the
+    (possibly padded) computational domain and needs to be cropped to the
+    topography region, exactly like the displacement field `opt.x`. Fall
+    back to the force criterion if the solver does not report an active
+    set.
+    """
+    active_set = getattr(opt, "active_set", None)
+    if active_set is None:
+        return force_xy > 0
+    return np.asarray(
+        active_set[: force_xy.shape[0], : force_xy.shape[1]], dtype=bool
+    )
+
+
 def _next_contact_step(system, history=None, pentol=None, maxiter=None):
     """
     Run a full contact calculation. Try to guess displacement such that areas
@@ -130,6 +150,7 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
     )
     force_xy = opt.jac
     displacement_xy = opt.x[: force_xy.shape[0], : force_xy.shape[1]]
+    contacting_points_xy = _extract_contacting_points(opt, force_xy)
 
     # Use list append for efficiency, convert to arrays only when needed
     if isinstance(mean_displacements, list):
@@ -137,7 +158,9 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
         mean_gaps.append(np.mean(displacement_xy) - middle - mean_displacement)
         mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
         mean_pressures.append(mean_load)
-        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_area = contacting_points_xy.sum() / np.prod(
+            topography.nb_grid_pts
+        )
         total_contact_areas.append(total_contact_area)
         converged = np.append(converged, np.array([opt.success], dtype=bool))
     else:
@@ -147,7 +170,9 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
         )
         mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
         mean_pressures = np.append(mean_pressures, [mean_load])
-        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_area = contacting_points_xy.sum() / np.prod(
+            topography.nb_grid_pts
+        )
         total_contact_areas = np.append(total_contact_areas, [total_contact_area])
         converged = np.append(converged, np.array([opt.success], dtype=bool))
 
@@ -155,8 +180,6 @@ def _next_contact_step(system, history=None, pentol=None, maxiter=None):
     pressure_xy = force_xy / area_per_pt
     gap_xy = displacement_xy - topography.heights() - opt.offset
     gap_xy[gap_xy < 0.0] = 0.0
-
-    contacting_points_xy = force_xy > 0
 
     return (
         displacement_xy,
@@ -241,6 +264,7 @@ def _contact_at_given_load(
     )
     force_xy = opt.jac
     displacement_xy = opt.x[: force_xy.shape[0], : force_xy.shape[1]]
+    contacting_points_xy = _extract_contacting_points(opt, force_xy)
 
     # Use list append for efficiency, convert to arrays only when needed
     if isinstance(mean_displacements, list):
@@ -248,7 +272,9 @@ def _contact_at_given_load(
         mean_gaps.append(np.mean(displacement_xy) - middle - opt.offset)
         mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
         mean_pressures.append(mean_load)
-        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_area = contacting_points_xy.sum() / np.prod(
+            topography.nb_grid_pts
+        )
         total_contact_areas.append(total_contact_area)
         converged = np.append(converged, np.array([opt.success], dtype=bool))
     else:
@@ -256,7 +282,9 @@ def _contact_at_given_load(
         mean_gaps = np.append(mean_gaps, [np.mean(displacement_xy) - middle - opt.offset])
         mean_load = force_xy.sum() / np.prod(topography.physical_sizes)
         mean_pressures = np.append(mean_pressures, [mean_load])
-        total_contact_area = (force_xy > 0).sum() / np.prod(topography.nb_grid_pts)
+        total_contact_area = contacting_points_xy.sum() / np.prod(
+            topography.nb_grid_pts
+        )
         total_contact_areas = np.append(total_contact_areas, [total_contact_area])
         converged = np.append(converged, np.array([opt.success], dtype=bool))
 
@@ -264,8 +292,6 @@ def _contact_at_given_load(
     pressure_xy = force_xy / area_per_pt
     gap_xy = displacement_xy - topography.heights() - opt.offset
     gap_xy[gap_xy < 0.0] = 0.0
-
-    contacting_points_xy = force_xy > 0
 
     return (
         displacement_xy,
@@ -455,6 +481,11 @@ class BoundaryElementMethod(WorkflowImplementation):
         # This is necessary because numbers can vary greatly
         # depending on the system of units.
         rms_height = topography.rms_height_from_area()
+        if rms_height <= 0:
+            raise IncompatibleTopographyException(
+                "The rms height of this topography is zero; contact mechanics "
+                "of a perfectly flat surface is not supported."
+            )
         pentol = rms_height / (10 * np.mean(topography.nb_grid_pts))
         pentol = max(pentol, min_pentol)
 
@@ -507,9 +538,13 @@ class BoundaryElementMethod(WorkflowImplementation):
             pressure_xy = xr.DataArray(
                 pressure_xy, dims=("x", "y")
             )  # maybe define coordinates
+            pressure_xy.attrs["units"] = "E*"
             gap_xy = xr.DataArray(gap_xy, dims=("x", "y"))
+            gap_xy.attrs["units"] = topography.unit
             displacement_xy = xr.DataArray(displacement_xy, dims=("x", "y"))
+            displacement_xy.attrs["units"] = topography.unit
             contacting_points_xy = xr.DataArray(contacting_points_xy, dims=("x", "y"))
+            contacting_points_xy.attrs["units"] = "1"  # dimensionless contact mask
 
             # one dataset per analysis step: smallest unit to retrieve
             dataset = xr.Dataset(
@@ -520,8 +555,15 @@ class BoundaryElementMethod(WorkflowImplementation):
                     "displacement": displacement_xy,
                 }
             )
-            dataset.attrs["mean_pressure"] = mean_pressure
-            dataset.attrs["total_contact_area"] = total_contact_area
+            dataset.attrs["mean_pressure"] = mean_pressure  # units of E*
+            # Rigid body displacement (offset) of this step, in units of
+            # `length_unit`; negative values indicate deeper penetration
+            dataset.attrs["mean_displacement"] = mean_displacement
+            dataset.attrs["total_contact_area"] = total_contact_area  # fractional
+            # Whether the optimizer converged in this step; netCDF has no
+            # boolean attributes, hence stored as 0/1
+            dataset.attrs["converged"] = int(bool(history[4][-1]))
+            dataset.attrs["length_unit"] = topography.unit
             dataset.attrs["type"] = substrate_str
             if hardness:
                 dataset.attrs["hardness"] = (
@@ -662,14 +704,21 @@ class BoundaryElementMethod(WorkflowImplementation):
         return dict(
             name="topobank_contact.boundary_element_method",
             display_name="Contact mechanics",
+            unit=topography.unit,
+            rms_height=rms_height,
+            # Total scan area in units of `unit`²; the product of mean
+            # pressure and scan area is the total force in units of E*·`unit`²
+            scan_area=force_conv,
             area_per_pt=substrate.area_per_pt,
             maxiter=maxiter,
             min_pentol=min_pentol,
             mean_pressures=mean_pressure[sort_order],
+            # Total force in units of E*·`unit`²; this is the physically
+            # meaningful control quantity for nonperiodic (free boundary)
+            # calculations, where the nominal pressure F/A0 has no direct
+            # physical interpretation
+            mean_forces=mean_pressure[sort_order] * force_conv,
             total_contact_areas=total_contact_area[sort_order],
-            # TODO: divide-by-zero when rms_height == 0 (perfectly flat
-            # topography) yields inf/nan displacements and gaps; guard
-            # rms_height before dividing.
             mean_displacements=mean_displacement[sort_order] / rms_height,
             mean_gaps=mean_gap[sort_order] / rms_height,
             converged=converged[sort_order],

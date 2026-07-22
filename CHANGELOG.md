@@ -1,5 +1,18 @@
 # Changelog for plugin *topobank-contact*
 
+## Unreleased
+
+- ENH: Contacting points and contact areas are now determined from the
+  optimizer's active set instead of thresholding forces (#16)
+- ENH: Per-step netCDF files now report the rigid body displacement
+  (offset) and the convergence status of each step (#28, #29)
+- ENH: Per-step netCDF files are now annotated with units (#24)
+- ENH: Analysis results now include the total forces, the scan area and
+  the rms height, enabling display of loads instead of nominal pressures
+  for nonperiodic calculations (#15, #25)
+- BUG: Raise a clear error for topographies with zero rms height instead
+  of producing NaN results
+
 ## 1.8.0 (2025-12-16)
 
 - UPSTREAM: Updated for API changes in topobank 1.66.0
