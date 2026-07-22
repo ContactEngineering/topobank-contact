@@ -328,6 +328,15 @@ class BoundaryElementMethod(WorkflowImplementation):
         pressures: Union[list[float], None] = None
         # Maximum number of iterations unless convergence
         maxiter: int = 100
+        # Contact modulus E* in physical units of pressure (given by
+        # elastic_modulus_unit); if provided, pressure axes of the derived
+        # plots (distributions, deep zoom images) are rendered in physical
+        # units. The calculation itself is carried out in units of E* and
+        # does not depend on this value; the fields stored in the netCDF
+        # files remain in units of E*.
+        elastic_modulus: Union[float, None] = None
+        # Unit of elastic_modulus
+        elastic_modulus_unit: str = "GPa"
 
         @field_validator("nsteps")
         @classmethod
@@ -338,6 +347,13 @@ class BoundaryElementMethod(WorkflowImplementation):
             # TypeError.
             if value is not None and value < 1:
                 raise ValueError("'nsteps' must be at least 1.")
+            return value
+
+        @field_validator("elastic_modulus")
+        @classmethod
+        def _validate_elastic_modulus(cls, value):
+            if value is not None and value <= 0:
+                raise ValueError("'elastic_modulus' must be positive.")
             return value
 
         @field_validator("pressures")
@@ -363,6 +379,18 @@ class BoundaryElementMethod(WorkflowImplementation):
         nsteps = self.kwargs.nsteps
         pressures = self.kwargs.pressures
         maxiter = self.kwargs.maxiter
+        elastic_modulus = self.kwargs.elastic_modulus
+        elastic_modulus_unit = self.kwargs.elastic_modulus_unit
+
+        # Pressures are computed in units of the contact modulus E*. If the
+        # user provided a value for E*, the derived plots (distributions,
+        # deep zoom images) are rendered in physical units instead.
+        if elastic_modulus is None:
+            pressure_fac = 1.0
+            pressure_unit = "E*"
+        else:
+            pressure_fac = elastic_modulus
+            pressure_unit = elastic_modulus_unit
 
         topography = analysis.subject
         folder = analysis.folder
@@ -564,6 +592,12 @@ class BoundaryElementMethod(WorkflowImplementation):
             # boolean attributes, hence stored as 0/1
             dataset.attrs["converged"] = int(bool(history[4][-1]))
             dataset.attrs["length_unit"] = topography.unit
+            if elastic_modulus is not None:
+                # Physical value of the contact modulus E*; multiply
+                # pressures (stored in units of E*) by this value to obtain
+                # physical pressures
+                dataset.attrs["elastic_modulus"] = elastic_modulus
+                dataset.attrs["elastic_modulus_unit"] = elastic_modulus_unit
             dataset.attrs["type"] = substrate_str
             if hardness:
                 dataset.attrs["hardness"] = (
@@ -585,14 +619,16 @@ class BoundaryElementMethod(WorkflowImplementation):
 
             fac = get_unit_conversion_factor(topography.unit, "m")
 
-            hist, edges = np.histogram(pressure_xy, density=True, bins=50)
+            hist, edges = np.histogram(
+                pressure_xy.data * pressure_fac, density=True, bins=50
+            )
             data_dict = {
                 "pressure": (edges[1:-1] + edges[2:]) / 2,
                 "pressureProbabilityDensity": hist[1:],
                 "pressureLabel": "Pressure p",
-                "pressureUnit": "E*",
+                "pressureUnit": pressure_unit,
                 "pressureProbabilityDensityLabel": "Probability density P(p)",
-                "pressureProbabilityDensityUnit": "E*⁻¹",
+                "pressureProbabilityDensityUnit": f"{pressure_unit}⁻¹",
             }
 
             hist, edges = np.histogram(gap_xy, density=True, bins=50)
@@ -647,12 +683,12 @@ class BoundaryElementMethod(WorkflowImplementation):
             #
 
             render_deepzoom(
-                pressure_xy.data,
+                pressure_xy.data * pressure_fac,
                 folder,
                 storage_prefix=f"{storage_path}/dzi/pressure",
                 physical_sizes=topography.physical_sizes,
                 unit=topography.unit,
-                colorbar_title="Pressure (E*)",
+                colorbar_title=f"Pressure ({pressure_unit})",
             )
             render_deepzoom(
                 contacting_points_xy.data.astype(int),
@@ -705,6 +741,10 @@ class BoundaryElementMethod(WorkflowImplementation):
             name="topobank_contact.boundary_element_method",
             display_name="Contact mechanics",
             unit=topography.unit,
+            # Physical value of the contact modulus E* (or None); multiply
+            # mean_pressures by this value to obtain physical pressures
+            elastic_modulus=elastic_modulus,
+            elastic_modulus_unit=elastic_modulus_unit,
             rms_height=rms_height,
             # Total scan area in units of `unit`²; the product of mean
             # pressure and scan area is the total force in units of E*·`unit`²

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- ENH: New optional workflow parameters `elastic_modulus` and
+  `elastic_modulus_unit` for rendering pressure axes of derived plots
+  (distributions, deep zoom images) in physical units (#26)
+- DOC: Added documentation of geometry and sign conventions, x/y
+  orientation, the definition of E* and load-controlled calculations,
+  including a kinematics figure and an example plot script
+  (#22, #27, #30)
+- DOC: Documented the composite-roughness recipe for the contact of two
+  rough surfaces (#17)
 - ENH: Contacting points and contact areas are now determined from the
   optimizer's active set instead of thresholding forces (#16)
 - ENH: Per-step netCDF files now report the rigid body displacement
