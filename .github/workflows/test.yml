@@ -55,4 +55,4 @@ jobs:
           .[dev]
 
     - name: Test
-      run: PYTHONPATH=.:/tmp/topobank pytest -v
+      run: pytest -v

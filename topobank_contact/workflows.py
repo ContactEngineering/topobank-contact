@@ -6,6 +6,7 @@ from typing import Literal, Union
 import numpy as np
 import xarray as xr
 from muTimer import Timer
+from pydantic import field_validator
 from ContactMechanics import (FreeFFTElasticHalfSpace,
                               PeriodicFFTElasticHalfSpace)
 from ContactMechanics.PlasticSystemSpecialisations import \
@@ -301,6 +302,29 @@ class BoundaryElementMethod(WorkflowImplementation):
         pressures: Union[list[float], None] = None
         # Maximum number of iterations unless convergence
         maxiter: int = 100
+
+        @field_validator("nsteps")
+        @classmethod
+        def _validate_nsteps(cls, value):
+            # nsteps may be None (in which case "pressures" must be given), but
+            # if it is provided it must be at least 1 - otherwise the load-step
+            # loop never runs and downstream code crashes with an opaque
+            # TypeError.
+            if value is not None and value < 1:
+                raise ValueError("'nsteps' must be at least 1.")
+            return value
+
+        @field_validator("pressures")
+        @classmethod
+        def _validate_pressures(cls, value):
+            # pressures may be None (in which case "nsteps" is used), but if it
+            # is provided it must be a non-empty list of positive values.
+            if value is not None:
+                if len(value) < 1:
+                    raise ValueError("'pressures' must not be empty.")
+                if any(p <= 0 for p in value):
+                    raise ValueError("All 'pressures' must be positive.")
+            return value
 
     def topography_implementation(
         self, analysis, progress_recorder=None, timer=None
@@ -643,6 +667,9 @@ class BoundaryElementMethod(WorkflowImplementation):
             min_pentol=min_pentol,
             mean_pressures=mean_pressure[sort_order],
             total_contact_areas=total_contact_area[sort_order],
+            # TODO: divide-by-zero when rms_height == 0 (perfectly flat
+            # topography) yields inf/nan displacements and gaps; guard
+            # rms_height before dividing.
             mean_displacements=mean_displacement[sort_order] / rms_height,
             mean_gaps=mean_gap[sort_order] / rms_height,
             converged=converged[sort_order],
