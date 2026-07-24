@@ -29,6 +29,10 @@ from topobank.supplib.json import ExtendedJSONEncoder
 APP_NAME = "topobank_contact"
 VIZ_CONTACT_MECHANICS = "contact-mechanics"
 
+# Open-access reference paper (Röttger et al., Surf. Topogr.: Metrol. Prop. 10
+# (2022) 035032).
+CE_PAPER_URL = "https://iopscience.iop.org/article/10.1088/2051-672X/ac860a"
+
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PRODUCT = 100000000
 CONTACT_MECHANICS_MAX_MB_GRID_PTS_PER_DIM = 10000
 
@@ -310,6 +314,13 @@ class BoundaryElementMethod(WorkflowImplementation):
         name = "topobank_contact.boundary_element_method"
         display_name = "Contact mechanics"
         visualization_type = VIZ_CONTACT_MECHANICS
+        description = (
+            "Boundary-element simulation of elastic (or plastic) contact: "
+            "presses the surface against a flat counterface and predicts the "
+            "real contact area, load and normal displacement as a function of "
+            "pressure."
+        )
+        reference_url = f"{CE_PAPER_URL}#stmpac860as5"
 
         implementations = {
             Topography: "topography_implementation",
