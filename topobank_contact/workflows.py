@@ -322,6 +322,46 @@ class BoundaryElementMethod(WorkflowImplementation):
         )
         reference_url = f"{CE_PAPER_URL}#stmpac860as5"
 
+        # Documentation of the output files, included in the README of a
+        # downloaded ZIP archive of these results
+        download_readme = """\
+Contents of a contact mechanics result
+======================================
+
+'result.json' contains the data of the summary plots, one entry per calculation
+step, in particular:
+
+- 'mean_pressures': mean pressure in units of the contact modulus E*. The mean
+  pressure is the total force divided by the nominal area of contact A0.
+- 'total_contact_areas': fractional contact area A/A0
+- 'mean_gaps': mean gap u, in units of the RMS height h_rms
+- 'converged': whether the calculation converged within the given limit
+- 'data_paths': the directory holding the detailed results of this step
+
+Each of those directories contains:
+
+- 'nc/results.nc', a classic NetCDF file with the maps of this step
+- 'json/distributions.json', the pressure, gap and cluster area distributions
+
+The NetCDF file holds the variables
+
+* `contacting_points`: 1 where the surface is in contact, 0 elsewhere
+* `pressure`: local pressure (in units of `E*`)
+* `gap`: local gap
+* `displacement`: local displacement
+
+and the attributes
+
+* `mean_pressure`: mean pressure (in units of `E*`)
+* `mean_displacement`: rigid-body displacement of this step (negative values
+  indicate deeper penetration)
+* `total_contact_area`: total contact area (fractional)
+* `converged`: 1 if the optimizer converged, 0 otherwise
+* `length_unit`: unit of `gap` and `displacement`
+* `elastic_modulus`: physical value of `E*`, if it was given. Multiply
+  pressures by this value to obtain physical pressures.
+"""
+
         implementations = {
             Topography: "topography_implementation",
         }
