@@ -1,6 +1,6 @@
 # Changelog for plugin *topobank-contact*
 
-## Unreleased
+## 1.9.0 (2026-07-31)
 
 - ENH: New optional workflow parameters `elastic_modulus` and
   `elastic_modulus_unit` for rendering pressure axes of derived plots
@@ -21,6 +21,18 @@
   for nonperiodic calculations (#15, #25)
 - BUG: Raise a clear error for topographies with zero rms height instead
   of producing NaN results
+- BUG: Validate the `nsteps`/`pressures` workflow parameters
+- BUG: Do not call the removed `Topography.get_absolute_url` in the
+  periodicity alert
+- ENH: Workflow description and reference URL for display in the user
+  interface
+- DOC: Documented the contents of the downloadable results of a contact
+  calculation
+- MAINT: Record per-step timing in the contact mechanics workflow
+- MAINT: Updated for the split of the REST API from topobank and the
+  removal of the plugin architecture (including plugin permissions)
+- MAINT: `Folder` -> `Manifest`
+- BUILD: Changed build system to hatchling
 
 ## 1.8.0 (2025-12-16)
 
