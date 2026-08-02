@@ -1,36 +1,29 @@
 # Changelog for plugin *topobank-contact*
 
-## 1.9.0 (2026-07-31)
+## 1.9.0 (2026-08-02)
 
-- ENH: New optional workflow parameters `elastic_modulus` and
-  `elastic_modulus_unit` for rendering pressure axes of derived plots
-  (distributions, deep zoom images) in physical units (#26)
-- DOC: Added documentation of geometry and sign conventions, x/y
-  orientation, the definition of E* and load-controlled calculations,
-  including a kinematics figure and an example plot script
-  (#22, #27, #30)
-- DOC: Documented the composite-roughness recipe for the contact of two
-  rough surfaces (#17)
-- ENH: Contacting points and contact areas are now determined from the
-  optimizer's active set instead of thresholding forces (#16)
-- ENH: Per-step netCDF files now report the rigid body displacement
-  (offset) and the convergence status of each step (#28, #29)
-- ENH: Per-step netCDF files are now annotated with units (#24)
-- ENH: Analysis results now include the total forces, the scan area and
-  the rms height, enabling display of loads instead of nominal pressures
-  for nonperiodic calculations (#15, #25)
-- BUG: Raise a clear error for topographies with zero rms height instead
-  of producing NaN results
+- ENH: New optional `elastic_modulus` and `elastic_modulus_unit` parameters render
+  pressure axes of derived plots in physical units (#26)
+- ENH: Contacting points and contact areas are determined from the optimizer's
+  active set instead of thresholding forces (#16)
+- ENH: Per-step netCDF files report the rigid body displacement and the convergence
+  status of each step (#28, #29)
+- ENH: Per-step netCDF files are annotated with units (#24)
+- ENH: Results include total forces, scan area and rms height, so loads can be shown
+  instead of nominal pressures for nonperiodic calculations (#15, #25)
+- ENH: Workflow description and reference URL for display in the user interface
+- BUG: Raise a clear error for topographies with zero rms height instead of NaN results
 - BUG: Validate the `nsteps`/`pressures` workflow parameters
-- BUG: Do not call the removed `Topography.get_absolute_url` in the
-  periodicity alert
-- ENH: Workflow description and reference URL for display in the user
-  interface
-- DOC: Documented the contents of the downloadable results of a contact
-  calculation
+- BUG: Do not call the removed `Topography.get_absolute_url` in the periodicity alert
+- DOC: Documented geometry and sign conventions, x/y orientation, the definition of
+  E* and load-controlled calculations, with a kinematics figure and example script
+  (#22, #27, #30)
+- DOC: Documented the composite-roughness recipe for the contact of two rough
+  surfaces (#17)
+- DOC: Documented the contents of the downloadable results of a contact calculation
 - MAINT: Record per-step timing in the contact mechanics workflow
-- MAINT: Updated for the split of the REST API from topobank and the
-  removal of the plugin architecture (including plugin permissions)
+- MAINT: Updated for the split of the REST API from topobank and the removal of the
+  plugin architecture (including plugin permissions)
 - MAINT: `Folder` -> `Manifest`
 - BUILD: Changed build system to hatchling
 
