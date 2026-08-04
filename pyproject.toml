@@ -43,6 +43,7 @@ dev = [
     'pytest',
     'pytest-django>=4.4.0',
     'pytest-mock',
+    'pytest-cov',
     'factory-boy',
     'django-celery-results',
 ]
@@ -55,3 +56,7 @@ repository = 'https://github.com/ContactEngineering/topobank-contact'
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.coverage.run]
+# Generated migration modules would dilute the coverage numbers
+omit = ["*/migrations/*"]
